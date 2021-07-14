@@ -292,12 +292,16 @@ class FormDialogs:
 		options_conf_true = [("Modify", "Modify the configuration file", 0)]
 		
 		try:
-			if not os.path.exists(self.utils.getPathInvAlert("conf") + "/inv_alert_conf.yaml"):
+			if not os.path.exists(self.configuration.conf_file):
 				opt_conf_false = self.getDataRadioList("Select a option", options_conf_false, "Configuration options")
 				if opt_conf_false == "Create":
 					self.configuration.createConfiguration()
+			else:
+				print("Hola")
 		except TypeError as exception:
+			self.utils.createInvAlertToolLog(exception, 4)
 			self.d.msgbox("\nAn error has occurred. For more information, see the logs.", 8, 50, title = "Error Message")
+			self.mainMenu()
 			
 		#else:
 		#	opt_conf_true = self.getDataRadioList("Select a option", options_conf_true, "Configuration options")
