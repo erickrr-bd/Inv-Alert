@@ -1,10 +1,13 @@
-import os
 import re
-import sys
+from os import path
+from sys import exit
 from dialog import Dialog
 from modules.UtilsClass import Utils
+from modules.InventoriesClass import Inventories
 from modules.ConfigurationClass import Configuration
 
+"""
+"""
 class FormDialogs:
 	"""
 	Property that stores an object of type Dialog.
@@ -22,6 +25,11 @@ class FormDialogs:
 	configuration = None
 
 	"""
+	Property that stores an object of type Inventories.
+	"""
+	inventories = None
+
+	"""
 	Constructor for the FormDialogs class.
 
 	Parameters:
@@ -29,6 +37,7 @@ class FormDialogs:
 	"""
 	def __init__(self):
 		self.utils = Utils(self)
+		self.inventories = Inventories(self)
 		self.d = Dialog(dialog = "dialog")
 		self.configuration = Configuration(self)
 		self.d.set_background_title("INV-ALERT-TOOL")
@@ -49,7 +58,7 @@ class FormDialogs:
 		if code_mm == self.d.OK:
 			return tag_mm
 		if code_mm == self.d.CANCEL:
-			sys.exit(0)
+			exit(0)
 
 	"""
 	Method that generates the interface with a list of options, where only one can be chosen.
@@ -72,7 +81,7 @@ class FormDialogs:
 					  title = title)
 			if code_rl == self.d.OK:
 				if len(tag_rl) == 0:
-					self.d.msgbox("\nSelect at least one option", 5, 50, title = "Error Message")
+					self.d.msgbox("\nSelect at least one option.", 7, 50, title = "Error Message")
 				else:
 					return tag_rl
 			if code_rl == self.d.CANCEL:
@@ -101,7 +110,7 @@ class FormDialogs:
 					 title = title)
 			if code_cl == self.d.OK:
 				if len(tag_cl) == 0:
-					self.d.msgbox("\nSelect at least one option", 7, 50, title = "Error Message")
+					self.d.msgbox("\nSelect at least one option.", 7, 50, title = "Error Message")
 				else:
 					return tag_cl
 			if code_cl == self.d.CANCEL:
@@ -269,6 +278,29 @@ class FormDialogs:
 				self.mainMenu()
 
 	"""
+	Method that generates an interface where it is allowed
+	to select a time.
+
+	Parameters:
+	self -- An instantiated object of the FormDialogs class.
+	text -- Text displayed on the interface.
+	hour -- Chosen hour.
+	minutes -- Chosen minutes.
+
+	Return:
+	tag_time -- Chosen time.
+	"""
+	def getDataTime(self, text, hour, minutes):
+		code_time, tag_time = self.d.timebox(text,
+											hour = hour,
+											minute = minutes,
+											second = 00)
+		if code_time == self.d.OK:
+			return tag_time
+		if code_time == self.d.CANCEL:
+			self.mainMenu()
+
+	"""
 	Method that generates the interface for entering
 	questioning type data with two possible yes or no values.
 
@@ -322,12 +354,12 @@ class FormDialogs:
 		options_conf_true = [("Modify", "Modify the configuration file", 0)]
 		
 		try:
-			if not os.path.exists(self.configuration.conf_file):
-				opt_conf_false = self.getDataRadioList("Select a option", options_conf_false, "Configuration options")
+			if not path.exists(self.configuration.conf_file):
+				opt_conf_false = self.getDataRadioList("Select a option:", options_conf_false, "Configuration Options")
 				if opt_conf_false == "Create":
 					self.configuration.createConfiguration()
 			else:
-				opt_conf_true = self.getDataRadioList("Select a option", options_conf_true, "Configuration options")
+				opt_conf_true = self.getDataRadioList("Select a option:", options_conf_true, "Configuration Options")
 				if opt_conf_true == "Modify":
 					self.configuration.updateConfiguration()
 		except TypeError as exception:
@@ -336,7 +368,24 @@ class FormDialogs:
 			self.mainMenu()
 
 	"""
-	Method that displays a message on the screen with information about the application.
+	Method that defines the menu of options related to
+	inventories.
+
+	Parameters:
+	self -- An instantiated object of the FormDialogs class.
+	"""
+	def inventoriesMenu(self):
+		options_im = [("1", "Create Inventory"),
+					  ("2", "Update Inventory"),
+					  ("3", "Delete Inventory"),
+					  ("4", "Show Inventories")]
+
+		option_im = self.getMenu(options_im, "Inventories Menu")
+		self.switchImenu(int(option_im))
+
+	"""
+	Method that displays a message on the screen with 
+	information about the application.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
@@ -346,7 +395,8 @@ class FormDialogs:
 		self.getScrollBox(message, "About")
 
 	"""
-	Method that launches an action based on the option chosen in the main menu.
+	Method that launches an action based on the option
+	chosen in the main menu.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
@@ -355,17 +405,30 @@ class FormDialogs:
 	def switchMmenu(self, option):
 		if option == 1:
 			self.defineConfiguration()
-		#if option == 2:
-		#	self.getCreateSnapshot()
+		if option == 2:
+			self.inventoriesMenu()
 		#if option == 3:
 		#	self.getDeleteSnapshot()
 		if option == 4:
 			self.getAbout()
 		if option == 5:
-			sys.exit(0)
+			exit(0)
 
 	"""
-	Method that defines the menu on the actions to be carried out in the main menu.
+	Method that launches an action based on the option
+	chosen in the inventories menu.
+
+	Parameters:
+	self -- An instantiated object of the FormDialogs class.
+	option -- Chosen option.
+	"""
+	def switchImenu(self, option):
+		if option == 1:
+			self.inventories.createInventory()
+
+	"""
+	Method that defines the menu on the actions to be
+	carried out in the main menu.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
