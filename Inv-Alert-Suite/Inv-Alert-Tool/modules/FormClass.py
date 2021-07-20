@@ -79,12 +79,42 @@ class FormDialogs:
 				self.mainMenu()
 
 	"""
+	Method that generates the interface with a list of options,
+	where you can choose one or more.
+
+	Parameters:
+	self -- An instantiated object of the FormDialogs class.
+	text -- Text that will be shown to the user.
+	options -- List of options that make up the interface.
+	title -- Title that will be given to the interface and that
+			 will be shown to the user.
+
+	Return:
+	tag_cl -- List with the chosen options.
+	"""
+	def getDataCheckList(self, text, options, title):
+		while True:
+			code_cl, tag_cl = self.d.checklist(
+					 text,
+					 width = 75,
+					 choices = options,
+					 title = title)
+			if code_cl == self.d.OK:
+				if len(tag_cl) == 0:
+					self.d.msgbox("\nSelect at least one option", 7, 50, title = "Error Message")
+				else:
+					return tag_cl
+			if code_cl == self.d.CANCEL:
+				self.mainMenu()
+
+	"""
 	Method that generates the message interface with scroll box.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
 	text -- Text that will be shown to the user.
-	title -- Title that will be given to the interface and that will be shown to the user.
+	title -- Title that will be given to the interface and that
+			 will be shown to the user.
 	"""
 	def getScrollBox(self, text, title):
 		code_sb = self.d.scrollbox(text, 15, 70, title = title)
@@ -110,10 +140,10 @@ class FormDialogs:
 			code_nd, tag_nd = self.d.inputbox(text, 10, 50, initial_value)
 			if code_nd == self.d.OK:
 				if(not self.utils.validateRegularExpression(decimal_reg_exp, tag_nd)):
-					self.d.msgbox("\nInvalid data entered. Required value (decimal or float).", 8, 50, title = "Error message")
+					self.d.msgbox("\nInvalid data entered. Required value (decimal or float).", 8, 50, title = "Error Message")
 				else:
 					if(float(tag_nd) < 7.0 or float(tag_nd) > 7.13):
-						self.d.msgbox("\nElasticSearch version not valid. Versions supported between 7.0 - 7.13.", 8, 50, title = "Error message")
+						self.d.msgbox("\nElasticSearch version not valid. Versions supported between 7.0 - 7.13.", 8, 50, title = "Error Message")
 					else:
 						return tag_nd
 			if code_nd == self.d.CANCEL:
@@ -297,16 +327,13 @@ class FormDialogs:
 				if opt_conf_false == "Create":
 					self.configuration.createConfiguration()
 			else:
-				print("Hola")
+				opt_conf_true = self.getDataRadioList("Select a option", options_conf_true, "Configuration options")
+				if opt_conf_true == "Modify":
+					self.configuration.updateConfiguration()
 		except TypeError as exception:
 			self.utils.createInvAlertToolLog(exception, 4)
 			self.d.msgbox("\nAn error has occurred. For more information, see the logs.", 8, 50, title = "Error Message")
 			self.mainMenu()
-			
-		#else:
-		#	opt_conf_true = self.getDataRadioList("Select a option", options_conf_true, "Configuration options")
-		#	if opt_conf_true == "Modify":
-		#		self.configuration.modifyConfiguration(FormDialogs())
 
 	"""
 	Method that displays a message on the screen with information about the application.
