@@ -3,10 +3,13 @@ from os import path
 from sys import exit
 from dialog import Dialog
 from modules.UtilsClass import Utils
+from modules.ServiceClass import Service
 from modules.InventoriesClass import Inventories
 from modules.ConfigurationClass import Configuration
 
 """
+Class that allows managing all the graphical interfaces
+of the application.
 """
 class FormDialogs:
 	"""
@@ -383,6 +386,23 @@ class FormDialogs:
 		option_im = self.getMenu(options_im, "Inventories Menu")
 		self.switchImenu(int(option_im))
 
+
+	"""
+	Method that defines the menu of options related to
+	the Inv-Alert service.
+
+	Parameters:
+	self -- An instantiated object of the FormDialogs class.
+	"""
+	def serviceMenu(self):
+		options_sm = [("1", "Start Service"),
+					  ("2", "Restart Service"),
+					  ("3", "Stop Service"),
+					  ("4", "Service Status")]
+
+		option_sm = self.getMenu(options_sm, "Service Menu")
+		self.switchSmenu(int(option_sm))
+
 	"""
 	Method that displays a message on the screen with 
 	information about the application.
@@ -406,9 +426,12 @@ class FormDialogs:
 		if option == 1:
 			self.defineConfiguration()
 		if option == 2:
-			self.inventoriesMenu()
-		#if option == 3:
-		#	self.getDeleteSnapshot()
+			if not path.exists(self.configuration.conf_file):
+				self.d.msgbox("\nThe configuration file does not exist.", 7, 50, title = "Error Message")
+			else:
+				self.inventoriesMenu()
+		if option == 3:
+			self.serviceMenu()
 		if option == 4:
 			self.getAbout()
 		if option == 5:
@@ -425,6 +448,31 @@ class FormDialogs:
 	def switchImenu(self, option):
 		if option == 1:
 			self.inventories.createInventory()
+		if option == 2:
+			self.inventories.updateInventory()
+		if option == 3:
+			self.inventories.deleteInventory()
+		if option == 4:
+			self.inventories.showAllInventories()
+
+	"""
+	Method that launches an action based on the option
+	chosen in the service menu.
+
+	Parameters:
+	self -- An instantiated object of the FormDialogs class.
+	option -- Chosen option.
+	"""
+	def switchSmenu(self, option):
+		service = Service(self)
+		if option == 1:
+			service.startService()
+		if option == 2:
+			service.restartService()
+		if option == 3:
+			service.stopService()
+		if option == 4:
+			service.getStatusService()
 
 	"""
 	Method that defines the menu on the actions to be

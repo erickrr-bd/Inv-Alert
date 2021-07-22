@@ -215,6 +215,23 @@ class Utils:
 		return True
 
 	"""
+	Method that converts a list into a list that can be
+	used for a checklist or radiolist in the application.
+
+	Parameters:
+	self -- An instantiated object of the Utils class.
+	list_to_convert -- List to convert.
+
+	Return:
+	new_list_convert -- Converted list.
+	"""
+	def convertListToCheckOrRadioList(self, list_to_convert):
+		new_list_convert = []
+		for item in list_to_convert:
+			new_list_convert.append((item, "", 0))
+		return new_list_convert
+
+	"""
 	Method that obtains the hash of a file.
 
 	Parameters:

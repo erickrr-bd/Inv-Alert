@@ -239,13 +239,6 @@ class Configuration:
 	self -- An instantiated object of the Configuration class.
 	data_conf -- Variable where all the information related to
 				 the configuration is stored.
-
-	Exceptions:
-	OSError -- This exception is raised when a system function
-	           returns a system-related error, including I/O
-	           failures such as “file not found” or “disk full”
-	           (not for illegal argument types or other incidental
-	           errors).
 	"""
 	def createFileConfiguration(self, data_conf):
 		data_json = {'es_version' : data_conf[0],
