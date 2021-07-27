@@ -20,22 +20,13 @@ Characteristics:
 - In the Telegram message, a txt file is attached with the list of hosts.
 
 ## Inv-Alert-Tool
-Telk-Alert graphical tool that allows the user to define the configuration and alert rules that will be used for the operation of the application. These data are saved in files with the extension yaml.
+Application that allows the configuration of Inv-Alert, as well as the management of inventories through a graphical interface.
 
 Characteristics:
-- Allows you to create and modify the Telk-Alert connection settings.
-- Allows you to create, modify and delete alert rules.
+- Allows you to create and modify the Inv-Alert connection settings.
+- Allows you to create, modify and delete inventories.
 - Encrypts sensitive data such as passwords so that they are not stored in plain text.
-- Allows you to start, restart, stop and get the status of the Telk-Alert service.
-- Allows you to create and modify the Telk-Alert-Agent configuration.
-- Allows you to start, restart, stop and get the status of the Telk-Alert-Agent service.
-
-## Telk-Alert-Agent
-Telk-Alert auxiliary tool that allows to validate the status of the Telk-Alert service and send an alert.
-
-Characteristics:
-- Validate the Telk-Alert service at two configurable hours of the day.
-- Send the status of the Telk-Alert service to a Telegram channel.
+- Allows you to start, restart, stop and get the status of the Inv-Alert service.
 
 # Requirements
 - CentOS 8 (So far it has only been tested in this version)
@@ -50,12 +41,12 @@ Characteristics:
   - pyyaml
 
 # Installation
-To install or update Telk-Alert, you must run the installer_telk_alert.sh executable with administrator rights. The installer will perform the following actions:
-- Copy and creation of directories and files necessary for the operation of Telk-Alert.
-- Creation of user and specific group for the operation of Telk-Alert.
-- It changes the owner of the files and directories necessary for the operation of Telk-Alert, assigning them to the user created for this purpose.
-- Creation of passphrase for the encryption and decryption of sensitive information, which is generated randomly, so it is unique for each installed Telk-Alert installation.
-- Creation of Telk-Alert and Telk-Alert-Agent services.
+To install or update Inv-Alert, you must run the installer_inv_alert.sh executable with administrator rights. The installer will perform the following actions:
+- Copy and creation of directories and files necessary for the operation of Inv-Alert.
+- Creation of user and specific group for the operation of Inv-Alert.
+- It changes the owner of the files and directories necessary for the operation of Inv-Alert, assigning them to the user created for this purpose.
+- Creation of passphrase for the encryption and decryption of sensitive information, which is generated randomly, so it is unique for each Inv-Alert installation.
+- Creation of Inv-Alert service.
 
 # Commercial Support
 ![Tekium](https://github.com/unmanarc/uAuditAnalyzer2/blob/master/art/tekium_slogo.jpeg)
