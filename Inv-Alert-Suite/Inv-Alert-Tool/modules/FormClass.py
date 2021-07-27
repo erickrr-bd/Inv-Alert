@@ -1,7 +1,7 @@
-import re
 from os import path
 from sys import exit
 from dialog import Dialog
+from re import compile as re_compile
 from modules.UtilsClass import Utils
 from modules.ServiceClass import Service
 from modules.InventoriesClass import Inventories
@@ -28,11 +28,6 @@ class FormDialogs:
 	configuration = None
 
 	"""
-	Property that stores an object of type Inventories.
-	"""
-	inventories = None
-
-	"""
 	Constructor for the FormDialogs class.
 
 	Parameters:
@@ -40,7 +35,6 @@ class FormDialogs:
 	"""
 	def __init__(self):
 		self.utils = Utils(self)
-		self.inventories = Inventories(self)
 		self.d = Dialog(dialog = "dialog")
 		self.configuration = Configuration(self)
 		self.d.set_background_title("INV-ALERT-TOOL")
@@ -51,29 +45,31 @@ class FormDialogs:
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
 	options -- List of options that make up the menu.
-	title -- Title that will be given to the interface and that will be shown to the user.
+	title -- Title displayed on the interface.
 
 	Return:
-	tag_mm -- The option chosen by the user.
+	tag_mm -- Chosen option.
 	"""
 	def getMenu(self, options, title):
-		code_mm, tag_mm = self.d.menu("Choose an option", choices = options,title = title)
+		code_mm, tag_mm = self.d.menu("Choose an option:", choices = options, title = title)
 		if code_mm == self.d.OK:
 			return tag_mm
 		if code_mm == self.d.CANCEL:
 			exit(0)
 
 	"""
-	Method that generates the interface with a list of options, where only one can be chosen.
+	Method that generates an interface with several
+	available options, and where only one of them can be
+	chosen.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
-	text -- Text that will be shown to the user.
+	text -- Text displayed on the interface.
 	options -- List of options that make up the interface.
-	title -- Title that will be given to the interface and that will be shown to the user.
+	title -- Title displayed on the interface.
 
 	Return:
-	tag_rl -- The option chosen by the user.
+	tag_rl -- Chosen option.
 	"""
 	def getDataRadioList(self, text, options, title):
 		while True:
@@ -91,15 +87,15 @@ class FormDialogs:
 				self.mainMenu()
 
 	"""
-	Method that generates the interface with a list of options,
-	where you can choose one or more.
+	Method that generates an interface with several
+	available options, and where you can choose one or more
+	of them.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
-	text -- Text that will be shown to the user.
+	text -- Text displayed on the interface.
 	options -- List of options that make up the interface.
-	title -- Title that will be given to the interface and that
-			 will be shown to the user.
+	title -- Title displayed on the interface.
 
 	Return:
 	tag_cl -- List with the chosen options.
@@ -120,13 +116,12 @@ class FormDialogs:
 				self.mainMenu()
 
 	"""
-	Method that generates the message interface with scroll box.
+	Method that generates an interface with scroll box.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
-	text -- Text that will be shown to the user.
-	title -- Title that will be given to the interface and that
-			 will be shown to the user.
+	text -- Text displayed on the interface.
+	title -- Title displayed on the interface.
 	"""
 	def getScrollBox(self, text, title):
 		code_sb = self.d.scrollbox(text, 15, 70, title = title)
@@ -134,113 +129,107 @@ class FormDialogs:
 			self.mainMenu()
 
 	"""
-	Method that generates the interface for entering decimal or
-	floating type data.
+	Method that generates the interface for entering decimal
+	or floating type data.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
-	text -- Text that will be shown to the user.
-	initial_value -- Default value that will be shown to the
-					 user in the interface.
+	text -- Text displayed on the interface.
+	initial_value -- Default value shown on the interface.
 
 	Return:
-	tag_nd -- Decimal value entered.
+	tag_nd -- Decimal or float value entered.
 	"""
 	def getDataNumberDecimal(self, text, initial_value):
-		decimal_reg_exp = re.compile(r'^[1-9](\.[0-9]+)?$')
+		decimal_reg_exp = re_compile(r'^[1-9](\.[0-9]+)?$')
 		while True:
 			code_nd, tag_nd = self.d.inputbox(text, 10, 50, initial_value)
 			if code_nd == self.d.OK:
 				if(not self.utils.validateRegularExpression(decimal_reg_exp, tag_nd)):
 					self.d.msgbox("\nInvalid data entered. Required value (decimal or float).", 8, 50, title = "Error Message")
 				else:
-					if(float(tag_nd) < 7.0 or float(tag_nd) > 7.13):
-						self.d.msgbox("\nElasticSearch version not valid. Versions supported between 7.0 - 7.13.", 8, 50, title = "Error Message")
-					else:
-						return tag_nd
+					return tag_nd
 			if code_nd == self.d.CANCEL:
 				self.mainMenu()
 
 	"""
-	Method that generates the interface for the entry of data of type IP address.
+	Method that generates an interface to enter an IP
+	address.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
-	text -- Text that will be shown to the user.
-	initial_value -- Default value that will be shown to the user in the interface.
+	text -- Text displayed on the interface.
+	initial_value -- Default value shown on the interface.
 
 	Return:
 	tag_ip -- IP address entered.
 	"""
 	def getDataIP(self, text, initial_value):
-		ip_reg_exp = re.compile(r'^(?:(?:[1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}(?:[1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^localhost$')
+		ip_reg_exp = re_compile(r'^(?:(?:[1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}(?:[1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^localhost$')
 		while True:
 			code_ip, tag_ip = self.d.inputbox(text, 10, 50, initial_value)
 			if code_ip == self.d.OK:
 				if(not self.utils.validateRegularExpression(ip_reg_exp, tag_ip)):
-					self.d.msgbox("\nInvalid data entered. Required value (IP address).", 8, 50, title = "Error message")
+					self.d.msgbox("\nInvalid data entered. Required value (IP address).", 8, 50, title = "Error Message")
 				else:
 					return tag_ip
 			if code_ip == self.d.CANCEL:
 				self.mainMenu()
 
 	"""
-	Method that generates the interface for entering data type communication port.
+	Method that generates an interface to enter a port.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
-	text -- Text that will be shown to the user.
-	initial_value -- Default value that will be shown to the user in the interface.
+	text -- Text displayed on the interface.
+	initial_value -- Default value shown on the interface.
 
 	Return:
 	tag_port -- Port entered.
 	"""
 	def getDataPort(self, text, initial_value):
-		port_reg_exp = re.compile(r'^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$')
+		port_reg_exp = re_compile(r'^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$')
 		while True:
 			code_port, tag_port = self.d.inputbox(text, 10, 50, initial_value)
 			if code_port == self.d.OK:
 				if(not self.utils.validateRegularExpression(port_reg_exp, tag_port)):
-					self.d.msgbox("\nInvalid data entered. Required value (0 - 65535).", 8, 50, title = "Error message")
+					self.d.msgbox("\nInvalid data entered. Required value (0 - 65535).", 8, 50, title = "Error Message")
 				else:
 					return tag_port
 			if code_port == self.d.CANCEL:
 				self.mainMenu()
 
 	"""
-	Method that generates the interface for entering directory
-	or file name data.
+	Method that generates an interface to enter a directory
+	or file name.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
-	text -- Text that will be shown to the user.
-	initial_value -- Default value that will be shown to the
-					 user in the interface.
+	text -- Text displayed on the interface.
+	initial_value -- Default value shown on the interface.
 
 	Return:
 	tag_fname -- File or directory name entered.
 	"""
 	def getDataNameFolderOrFile(self, text, initial_value):
-		name_file_reg_exp = re.compile(r'^[^\\/?%*:|"<>]+$')
+		name_file_reg_exp = re_compile(r'^[^\\/?%*:|"<>]+$')
 		while True:
 			code_fname, tag_fname = self.d.inputbox(text, 10, 50, initial_value)
 			if code_fname == self.d.OK:
 				if(not self.utils.validateRegularExpression(name_file_reg_exp, tag_fname)):
-					self.d.msgbox("\nInvalid data entered. Required value (folder name).", 8, 50, title = "Error message")
+					self.d.msgbox("\nInvalid data entered. Required value (folder name).", 8, 50, title = "Error Message")
 				else:
 					return tag_fname
 			if code_fname == self.d.CANCEL:
 				self.mainMenu()
 
 	"""
-	Method that generates the interface for entering text type
-	data.
+	Method that generates an interface to enter text.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
-	text -- Text that will be shown to the user.
-	initial_value -- Default value that will be shown to the
-					 user in the interface.
+	text -- Text displayed on the interface.
+	initial_value -- Default value shown on the interface.
 
 	Return:
 	tag_input -- Text entered.
@@ -250,21 +239,19 @@ class FormDialogs:
 			code_input, tag_input = self.d.inputbox(text, 10, 50, initial_value)
 			if code_input == self.d.OK:
 				if tag_input == "":
-					self.d.msgbox("\nInvalid data entered. Required value (not empty).", 8, 50, title = "Error message")
+					self.d.msgbox("\nInvalid data entered. Required value (not empty).", 8, 50, title = "Error Message")
 				else:
 					return tag_input
 			if code_input == self.d.CANCEL:
 				self.mainMenu()
 
 	"""
-	Method that generates the interface for entering password
-	type data.
+	Method that generates an interface to enter a password.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
-	text -- Text that will be shown to the user.
-	initial_value -- Default value that will be shown to the
-					 user in the interface.
+	text -- Text displayed on the interface.
+	initial_value -- Default value shown on the interface.
 
 	Return:
 	tag_pass -- Password entered.
@@ -274,7 +261,7 @@ class FormDialogs:
 			code_pass, tag_pass = self.d.passwordbox(text, 10, 50, initial_value, insecure = True)
 			if code_pass == self.d.OK:
 				if tag_pass == "":
-					self.d.msgbox("\nInvalid data entered. Required value (not empty).", 8, 50, title = "Error message")
+					self.d.msgbox("\nInvalid data entered. Required value (not empty).", 8, 50, title = "Error Message")
 				else:
 					return tag_pass
 			if code_pass == self.d.CANCEL:
@@ -287,8 +274,8 @@ class FormDialogs:
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
 	text -- Text displayed on the interface.
-	hour -- Chosen hour.
-	minutes -- Chosen minutes.
+	hour -- Hour.
+	minutes -- Minutes.
 
 	Return:
 	tag_time -- Chosen time.
@@ -304,14 +291,13 @@ class FormDialogs:
 			self.mainMenu()
 
 	"""
-	Method that generates the interface for entering
-	questioning type data with two possible yes or no values.
+	Method that generates a decision-making interface
+	(yes / no).
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
-	text -- Text that will be shown to the user.
-	title -- Title that will be given to the interface and that
-			 will be shown to the user.
+	text -- Text displayed on the interface.
+	title -- Title displayed on the interface.
 
 	Return:
 	tag_yesorno -- Chosen option (yes or no).
@@ -321,15 +307,12 @@ class FormDialogs:
 		return tag_yesorno
 
 	"""
-	Method generated by the interface to select a file or 
-	directory.
+	Method that generates an interface to select a file.
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
-	initial_path -- Initial path where the interface will place
-					the user.
-	title -- Title that will be given to the interface and that
-			 will be shown to the user.
+	initial_path -- Directory or initial path.
+	title -- Title displayed on the interface.
 
 	Return:
 	tag_df -- Path of the selected file.
@@ -346,7 +329,8 @@ class FormDialogs:
 				self.mainMenu()
 
 	"""
-	Method that defines the action to be performed on the Inv-Alert configuration file (creation or modification).
+	Method that defines the action to be performed on the
+	Inv-Alert configuration file (creation or modification).
 
 	Parameters:
 	self -- An instantiated object of the FormDialogs class.
@@ -446,14 +430,15 @@ class FormDialogs:
 	option -- Chosen option.
 	"""
 	def switchImenu(self, option):
+		inventories = Inventories(self)
 		if option == 1:
-			self.inventories.createInventory()
+			inventories.createInventory()
 		if option == 2:
-			self.inventories.updateInventory()
+			inventories.updateInventory()
 		if option == 3:
-			self.inventories.deleteInventory()
+			inventories.deleteInventory()
 		if option == 4:
-			self.inventories.showAllInventories()
+			inventories.showAllInventories()
 
 	"""
 	Method that launches an action based on the option

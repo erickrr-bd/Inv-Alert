@@ -19,6 +19,8 @@ class Inventories:
 	utils = None
 
 	"""
+	Property that stores the path where inventories are
+	stored.
 	"""
 	path_inventories = None
 

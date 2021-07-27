@@ -1,4 +1,3 @@
-import logging
 from pwd import getpwnam
 from datetime import date
 from Crypto import Random
@@ -8,6 +7,7 @@ from os import chown, path, mkdir
 from yaml import safe_load, safe_dump
 from base64 import b64encode, b64decode
 from Crypto.Util.Padding import pad, unpad
+from logging import getLogger, INFO, Formatter, FileHandler
 
 """
 Class that allows managing all the utilities that are used for
@@ -83,7 +83,7 @@ class Utils:
 			self.ownerChange(path_file_yaml)
 		except IOError as exception:
 			self.createInvAlertToolLog(exception, 3)
-			self.form_dialog.d.msgbox("", 8, 50, title = "Error Message")
+			self.form_dialog.d.msgbox("\nError creating YAML file. For more information, see the logs.", 8, 50, title = "Error Message")
 			self.form_dialog.mainMenu()
 
 	"""
@@ -156,8 +156,9 @@ class Utils:
 	pass_key -- Passphrase in a character string.
 
 	Exceptions:
-	FileNotFoundError -- his is an exception in python and it
-	comes when a file does not exist and we want to use it. 
+	FileNotFoundError -- This is an exception in python and it
+						 comes when a file does not exist
+						 and we want to use it. 
 	"""
 	def getPassphrase(self):
 		try:
@@ -254,7 +255,7 @@ class Utils:
 					hash_sha.update(block)
 		except IOError as exception:
 			self.createInvAlertToolLog(exception, 3)
-			self.form_dialog.d.msgbox("", 8, 50, title = "Error Message")
+			self.form_dialog.d.msgbox("\nError getting the file's hash function. For more information, see the logs.", 8, 50, title = "Error Message")
 			self.form_dialog.mainMenu()
 		else:
 			return hash_sha.hexdigest()
@@ -312,7 +313,7 @@ class Utils:
 			aes = AES.new(key, AES.MODE_CBC, IV)
 		except binascii.Error as exception:
 			self.createInvAlertToolLog(exception, 3)
-			self.form_dialog.d.msgbox("\nFailed to decrypt the data. For more details, see the logs.", 8, 50, title = "Error Message")
+			self.form_dialog.d.msgbox("\nFailed to decrypt the data. For more information, see the logs.", 8, 50, title = "Error Message")
 			self.form_dialog.mainMenu()
 		else:
 			return unpad(aes.decrypt(text_encrypt[AES.block_size:]), AES.block_size)
@@ -328,11 +329,11 @@ class Utils:
 	"""
 	def createInvAlertToolLog(self, message, type_log):
 		name_log = '/var/log/Inv-Alert/inv-alert-tool-log-' + str(date.today()) + '.log'
-		logger = logging.getLogger('Inv_Alert_Tool_Log')
-		logger.setLevel(logging.INFO)
-		fh = logging.FileHandler(name_log)
+		logger = getLogger('Inv_Alert_Tool_Log')
+		logger.setLevel(INFO)
+		fh = FileHandler(name_log)
 		logger.addHandler(fh)
-		formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+		formatter = Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 		fh.setFormatter(formatter)
 		logger.addHandler(fh)
 		if type_log == 1:

@@ -1,4 +1,4 @@
-from os import path
+from os import path, rename
 from modules.UtilsClass import Utils
 
 """
@@ -29,7 +29,7 @@ class Configuration:
 	"""
 	def __init__(self, form_dialog):
 		self.form_dialog = form_dialog
-		self.utils = Utils(self.form_dialog)
+		self.utils = Utils(form_dialog)
 		self.conf_file = self.utils.getPathInvAlert('conf') + '/inv_alert_conf.yaml'
 
 	"""
@@ -66,16 +66,16 @@ class Configuration:
 			data_conf.append(True)
 			user_http_auth = self.utils.encryptAES(self.form_dialog.getDataInputText("Enter the username for HTTP authentication:", "user_http"))
 			pass_http_auth = self.utils.encryptAES(self.form_dialog.getDataPassword("Enter the user's password for HTTP authentication:", "password"))
-			data_conf.append(user_http_auth)
-			data_conf.append(pass_http_auth)
+			data_conf.append(user_http_auth.decode('utf-8'))
+			data_conf.append(pass_http_auth.decode('utf-8'))
 		else:
 			data_conf.append(False)
 		self.createFileConfiguration(data_conf)
 		if path.exists(self.conf_file):
-			self.utils.createInvAlertToolLog("Configuration file created", 2)
-			self.form_dialog.d.msgbox("\nConfiguration file created", 7, 50, title = "Notification message")
+			self.utils.createInvAlertToolLog("Configuration file created", 1)
+			self.form_dialog.d.msgbox("\nConfiguration file created.", 7, 50, title = "Notification Message")
 		else:
-			self.form_dialog.d.msgbox("\nError creating configuration file. For more information, see the logs.", 8, 50, title = "Error message")
+			self.form_dialog.d.msgbox("\nError creating configuration file. For more information, see the logs.", 8, 50, title = "Error Message")
 		self.form_dialog.mainMenu()
 
 	"""
@@ -89,6 +89,11 @@ class Configuration:
 	KeyError -- A Python KeyError exception is what is raised
 		   		when you try to access a key that isn’t in a 
 		   		dictionary (dict). 
+	OSError -- This exception is raised when a system function
+	           returns a system-related error, including I/O
+	           failures such as “file not found” or “disk full”
+	           (not for illegal argument types or other incidental
+	           errors).
 	"""
 	def updateConfiguration(self):
 		options_conf_fields = [("Version", "ElasticSearch Version", 0),
@@ -122,7 +127,8 @@ class Configuration:
 		flag_folder_name = 0
 		flag_use_ssl = 0
 		flag_use_http_auth = 0
-		opt_conf_fields = self.form_dialog.getDataCheckList("Select one or more options: ", options_conf_fields, "Configuration File Fields")
+		flag_rename = 0
+		opt_conf_fields = self.form_dialog.getDataCheckList("Select one or more options:", options_conf_fields, "Configuration File Fields")
 		for option in opt_conf_fields:
 			if option == "Version":
 				flag_version = 1
@@ -150,8 +156,10 @@ class Configuration:
 				data_conf['es_port'] = int(port_es)
 			if flag_folder_name == 1:
 				folder_inv = self.form_dialog.getDataNameFolderOrFile("Enter the name of the folder where the inventories created will be saved:", data_conf['inv_folder'])
-				data_conf['inv_folder'] = folder_inv
-				self.utils.createNewFolder(self.utils.getPathInvAlert(folder_inv))
+				if not data_conf['inv_folder'] == folder_inv:
+					flag_rename = 1
+					old_folder_inv = data_conf['inv_folder']
+					data_conf['inv_folder'] = folder_inv
 			if flag_use_ssl == 1:
 				if data_conf['use_ssl'] == True:
 					opt_ssl_true = self.form_dialog.getDataRadioList("Select a option:", options_ssl_true, "Connection SSL/TLS")
@@ -222,12 +230,14 @@ class Configuration:
 			if hash_data_conf == hash_data_conf_upd:
 				self.form_dialog.d.msgbox("\nThe configuration file was not modified.", 7, 50, title = "Notification Message")
 			else:
+				if flag_rename == 1:
+					rename(self.utils.getPathInvAlert(old_folder_inv), self.utils.getPathInvAlert(data_conf['inv_folder']))
 				self.utils.createInvAlertToolLog("The configuration file was modified", 1)
 				self.form_dialog.d.msgbox("\nThe configuration file was modified.", 7, 50, title = "Notification Message")
 			self.form_dialog.mainMenu()
-		except KeyError as exception:
+		except (OSError, KeyError) as exception:
 			self.utils.createInvAlertToolLog(exception, 3)
-			self.form_dialog.d.msgbox("\nKey Error: " + str(exception), 7, 50, title = "Error Message")
+			self.form_dialog.d.msgbox("Error modifying the configuration file. For more information, see the logs.", 8, 50, title = "Error Message")
 			self.form_dialog.mainMenu()
 
 
@@ -259,7 +269,7 @@ class Configuration:
 			last_index = 4
 
 		if data_conf[last_index + 1] == True:
-			http_auth_json = { 'use_http_auth' : data_conf[last_index + 1], 'http_auth_user' : data_conf[last_index + 2].decode("utf-8"), 'http_auth_pass' : data_conf[last_index + 3].decode("utf-8") }
+			http_auth_json = { 'use_http_auth' : data_conf[last_index + 1], 'http_auth_user' : data_conf[last_index + 2], 'http_auth_pass' : data_conf[last_index + 3] }
 		else:
 			http_auth_json = { 'use_http_auth' : data_conf[last_index + 1] }
 		data_json.update(http_auth_json)
