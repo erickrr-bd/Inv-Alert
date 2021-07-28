@@ -124,10 +124,7 @@ class Elastic:
 
 	Return:
 	conn_es -- Object that contains the connection to ElasticSearch.
-
-	
 	"""
-
 	def getInventory(self, inventory_yaml, conn_es):
 		now = datetime.now()
 		try:
@@ -141,17 +138,28 @@ class Elastic:
 				result_inv_search = search_aux_inv.execute()
 				for event_found in result_inv_search.aggregations.events.buckets:
 					list_search_hosts.append(event_found.key)
-				if not path.exists(self.utils.getPathInvAlert(self.inv_alert_conf['inv_folder']) + '/' + inventory_yaml['name_inv'] + '/database_inv.yaml'):
-					self.createDatabaseFile(list_search_hosts)
+				path_database_file = self.utils.getPathInvAlert(self.inv_alert_conf['inv_folder']) + '/' + inventory_yaml['name_inv'] + '/database_inv.yaml'
+				if not path.exists(path_database_file):
+					self.createDatabaseFile(list_search_hosts, path_database_file)
 				else:
 					print("Si existe")
 				sleep(60)
 		except (KeyError, OSError) as exception:
 			print("Error")
 
-	def createDatabaseFile(self, list_hosts):
+	"""
+	Method that creates the YAML file that will serve as the
+	inventory database.
+
+	Parameters:
+	self -- An instantiated object of the Elastic class.
+	list_hosts -- List with all hosts found.
+	path_database_file -- Path where the YAML file will be
+						  created.
+	"""
+	def createDatabaseFile(self, list_hosts, path_database_file):
 		database_json = {'last_scan_time' : strftime("%c"),
 						'list_hosts' : list_hosts,
 						'total_hosts' : len(list_hosts)}
 
-		print(database_json)
+		self.utils.createYamlFile(database_json, path_database_file, 'w')

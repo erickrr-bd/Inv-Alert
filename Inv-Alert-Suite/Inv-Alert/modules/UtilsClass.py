@@ -1,10 +1,10 @@
 from pwd import getpwnam
 from datetime import date
 from os import path, chown
-from yaml import safe_load
 from hashlib import sha256
 from base64 import b64decode
 from Crypto.Cipher import AES
+from yaml import safe_load, safe_dump
 from Crypto.Util.Padding import unpad
 from logging import getLogger, INFO, Formatter, FileHandler
 
@@ -54,6 +54,28 @@ class Utils:
 			print("\nError opening or reading the YAML file. For more information, see the logs.")
 		else:
 			return data_file_yaml
+
+	"""
+	Method that creates a YAML file.
+
+	Parameters:
+	self -- An instantiated object of the Utils class.
+	data -- Information that will be stored in the YAML file.
+	path_file_yaml -- YAML file path.
+	mode -- Mode in which the YAML file will be opened.
+
+	Exceptions:
+	IOError -- It is an error raised when an input/output
+	           operation fails.
+	"""
+	def createYamlFile(self, data, path_file_yaml, mode):
+		try:
+			with open(path_file_yaml, mode) as file_yaml:
+				safe_dump(data, file_yaml, default_flow_style = False)
+			self.ownerChange(path_file_yaml)
+		except IOError as exception:
+			self.createInvAlertLog(exception, 3)
+			print("\nError creating YAML file. For more information, see the logs.")
 
 	"""
 	Method that defines a directory based on the main Inv-Alert
