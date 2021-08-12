@@ -117,7 +117,7 @@ class Elastic:
 				print("\nCONNECTION DATA:\n")
 				print("Cluster name: " + conn_es.info()['cluster_name'])
 				print("Elasticsearch version: " + conn_es.info()['version']['number'])
-		except (KeyError, exceptions.ConnectionError, exceptions.AuthenticationException, exceptions.AuthorizationException, InvalidURL) as exception:
+		except (KeyError, exceptions.ConnectionError, exceptions.AuthenticationException, exceptions.AuthorizationException, exceptions.RequestError, InvalidURL) as exception:
 			self.utils.createInvAlertLog(exception, 3)
 			print("\nFailed to connect to ElasticSearch. For more information, see the logs.")
 			exit(1)
@@ -153,7 +153,7 @@ class Elastic:
 				a = A('terms', field = inventory_yaml['field_name'], size = 10000)
 				search_inv = Search(index = inventory_yaml['index_name']).using(conn_es)
 				if inventory_yaml['frequency_inv'] == "Daily":
-					search_aux_inv = search_inv.query('range', ** { '@timestamp' : { 'gte' : "now-1d", 'lte' : "now" }}).source(fields = None)
+					search_aux_inv = search_inv.query('range', ** { '@timestamp' : { 'gte' : "now-12h", 'lte' : "now" }}).source(fields = None)
 				search_aux_inv.aggs.bucket('events', a)
 				result_inv_search = search_aux_inv.execute()
 				for event_found in result_inv_search.aggregations.events.buckets:
@@ -162,6 +162,7 @@ class Elastic:
 				path_database_txt = self.utils.getPathInvAlert(self.inv_alert_conf['inv_folder']) + '/' + inventory_yaml['name_inv'] + '/inv-' + str(date.today()) + '.txt'
 				if not path.exists(path_database_file):
 					self.createDatabaseFile(list_search_hosts, path_database_file)
+					message_telegram = self.telegram.getTelegramMessage([], [], list_search_hosts, inventory_yaml['name_inv'])
 				else:
 					database_yaml = self.utils.readYamlFile(path_database_file, 'rU')
 					list_hosts_old = database_yaml['list_hosts']
@@ -177,14 +178,14 @@ class Elastic:
 						for host_to_remove in list_hosts_removed:
 							list_hosts_old.remove(host_to_remove)
 					print("Total hosts: " + str(len(list_hosts_old)))
-					#self.createDatabaseFile(list_hosts_old, path_database_file)
-					copy(path_database_file, path_database_txt)
-					self.utils.ownerChange(path_database_txt)
+					self.createDatabaseFile(list_hosts_old, path_database_file)
 					message_telegram = self.telegram.getTelegramMessage(list_hosts_added, list_hosts_removed, list_hosts_old, inventory_yaml['name_inv'])
-					status_code_telegram = self.telegram.sendTelegramAlert(self.utils.decryptAES(inventory_yaml['telegram_chat_id']).decode('utf-8'), self.utils.decryptAES(inventory_yaml['telegram_bot_token']).decode('utf-8'), message_telegram, path_database_txt)
-					print(status_code_telegram)
+				copy(path_database_file, path_database_txt)
+				self.utils.ownerChange(path_database_txt)
+				status_code_telegram = self.telegram.sendTelegramAlert(self.utils.decryptAES(inventory_yaml['telegram_chat_id']).decode('utf-8'), self.utils.decryptAES(inventory_yaml['telegram_bot_token']).decode('utf-8'), message_telegram, path_database_txt)
+				self.telegram.getStatusbyResponseCode(status_code_telegram, inventory_yaml['name_inv'])
 				sleep(60)
-		except (KeyError, OSError) as exception:
+		except (KeyError, OSError, exceptions.ConnectionTimeout) as exception:
 			self.utils.createInvAlertLog(exception, 3)
 			print("\nFailed to get inventory. For more information, see the logs.")
 

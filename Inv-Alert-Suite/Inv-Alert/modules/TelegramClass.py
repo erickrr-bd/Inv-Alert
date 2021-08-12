@@ -79,3 +79,27 @@ class Telegram:
 			message += u'\u270F\uFE0F' + " Total hosts removed: " + str(len(list_hosts_removed))
 			message += "Total hosts: " + str(len(list_hosts_final))
 		return message.encode('utf-8')
+
+	"""
+	Method that prints in the application log and on the
+	screen the status of the alert sent to Telegram, when
+	obtaining the inventory.
+
+	Parameters:
+	self -- An instantiated object of the Telegram class.
+	telegram_response_code -- HTTP response code.
+	name_inv -- Inventory name.
+	"""
+	def getStatusbyResponseCode(self, telegram_response_code, name_inv):
+		if telegram_response_code == 200:
+			self.utils.createInvAlertLog("Inventory: " + name_inv + ", Status: Telegram sent.", 1)
+			print("\nInventory: " + name_inv + ", Status: Telegram sent.")
+		elif telegram_response_code == 400:
+			self.utils.createInvAlertLog("Inventory: " + name_inv + ", Status: Bad request.", 2)
+			print("\nInventory: " + name_inv + ", Status: Bad request.")
+		elif telegram_response_code == 401:
+			self.utils.createInvAlertLog("Inventory: " + name_inv + ", Status: Unauthorized.", 2)
+			print("\nInventory: " + name_inv + ", Status: Unauthorized.")
+		elif telegram_response_code == 404:
+			self.utils.createInvAlertLog("Inventory: " + name_inv + ", Status: Not found.", 2)
+			print("\nInventory: " + name_inv + ", Status: Not found.")
