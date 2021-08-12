@@ -1,3 +1,4 @@
+from sys import exit
 from os import scandir
 from threading import Thread
 from modules.UtilsClass import Utils
@@ -43,6 +44,16 @@ class Inventories:
 		self.elastic = Elastic(self.inv_alert_conf)
 	
 	"""
+	Method that starts the application and runs all the
+	inventories created.
+
+	Parameters:
+	self -- An instantiated object of the Inventories class.
+
+	Exceptions:
+	KeyError -- A Python KeyError exception is what is
+				raised when you try to access a key that
+				isn’t in a dictionary (dict). 
 	"""
 	def loadAllInventories(self):
 		try:
@@ -69,7 +80,9 @@ class Inventories:
 						inventory_yaml = self.utils.readYamlFile(self.path_inventories + '/' + inventory + '/' + inventory + '.yaml', 'r')
 						thread_inventory = Thread(target = self.elastic.getInventory, args = (inventory_yaml, conn_es, )).start()
 		except KeyError as exception:
-			print("Error")
+			self.utils.createInvAlertLog(exception, 3)
+			print("\nError executing inventories. For more information, see the logs.")
+			exit(1)
 
 	"""
 	Method that obtains a list with all the inventories

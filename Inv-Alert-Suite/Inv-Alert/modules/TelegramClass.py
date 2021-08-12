@@ -1,17 +1,81 @@
-from pycurl import Curl, RESPONSE_CODE
+from io import StringIO
+from time import strftime
+from modules.UtilsClass import Utils
+from pycurl import Curl, RESPONSE_CODE, FORM_FILE
 
-def Telegram:
+"""
+Class that manages everything related to Telegram.
+"""
+class Telegram:
 	"""
+	Property that stores an object of type Utils.
 	"""
-	sendType = { 'document' : 'sendDocument' }
+	utils = None
 
-	def uploadFileTelegram(self, url, method, options):
+	"""
+	Constructor for the Telegram class.
+
+	Parameters:
+	self -- An instantiated object of the Telegram class.
+	"""
+	def __init__(self):
+		self.utils = Utils()
+
+	"""
+	Method that sends a message to a Telegram channel with
+	text and an attachment.
+
+	Parameters:
+	self -- An instantiated object of the Telegram class.
+	telegram_chat_id -- Telegram channel identifier. 
+	telegram_bot_token -- Telegram bot token.
+	message_telegram -- Message that will be sent to the
+						Telegram channel.
+	file_attached -- Path of the file that will be attached
+					 to the telegram channel.
+
+	Return:
+	HTTP Response code.
+	"""
+	def sendTelegramAlert(self, telegram_chat_id, telegram_bot_token, message_telegram, file_attached):
+		url = "https://api.telegram.org/bot" + str(telegram_bot_token) + '/'
+		data_telegram = [("chat_id", telegram_chat_id), ('document', (FORM_FILE, file_attached))]
+		data_telegram.append(("caption", message_telegram))
 		c = Curl()
 		storage = StringIO()
-		c.setopt(c.URL, url + method)
-		c.setopt(c.HTTPPOST, options)
+		c.setopt(c.URL, url + 'sendDocument')
+		c.setopt(c.HTTPPOST, data_telegram)
 		c.perform_rs()
 		return c.getinfo(RESPONSE_CODE)
 
-	def sendTelegramAlert(self, chat_id, bot_token, message):
-		print("Hola")
+	"""
+	Method that generates the message that will be sent in
+	the alert to Telegram.
+
+	Parameters:
+	self -- An instantiated object of the Telegram class.
+	list_hosts_added -- List of hosts added.
+	list_hosts_removed -- List of hosts removed.
+	list_hosts_final -- Final host list.
+	name_inv -- Inventory name.
+
+	Return:
+	message -- Message formed to be sent.
+	"""
+	def getTelegramMessage(self, list_hosts_added, list_hosts_removed, list_hosts_final, name_inv):
+		message = "" + u'\u26A0\uFE0F' + " " + name_inv +  " " + u'\u26A0\uFE0F' + '\n\n' + u'\u23F0' + " Alert sent: " + strftime("%c") + "\n\n"
+		message += u'\u270F\uFE0F' + " Total hosts added: " + str(len(list_hosts_added)) + '\n\n'
+		if len(list_hosts_added) > 0:
+			for host_to_add in list_hosts_added:
+				message += u'\u2611\uFE0F' + ' ' + host_to_add + '\n'
+		message += '\n' + u'\u270F\uFE0F' + " Total hosts removed: " + str(len(list_hosts_removed)) + '\n\n'
+		if len(list_hosts_removed) > 0:
+			for host_to_remove in list_hosts_removed:
+				message += u'\u2611\uFE0F' + ' ' + host_to_remove + '\n'
+		message += '\n\n' + "TOTAL HOSTS: " + str(len(list_hosts_final))
+		if len(message) > 4096:
+			message = u'\u26A0\uFE0F' + " " + name_inv +  " " + u'\u26A0\uFE0F' + u'\u23F0' + " Alert sent: " + strftime("%c") + "\n\n\n"
+			message += u'\u270F\uFE0F' + " Total hosts added: " + str(len(list_hosts_added))
+			message += u'\u270F\uFE0F' + " Total hosts removed: " + str(len(list_hosts_removed))
+			message += "Total hosts: " + str(len(list_hosts_final))
+		return message.encode('utf-8')

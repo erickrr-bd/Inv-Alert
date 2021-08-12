@@ -3,8 +3,8 @@
 from modules.InventoriesClass import Inventories
 
 """
-	Property that stores an object of type Inventories.
-	"""
+Property that stores an object of type Inventories.
+"""
 inventories = Inventories()
 
 """

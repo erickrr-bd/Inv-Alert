@@ -148,11 +148,10 @@ class Inventories:
 				elif option == "Chat ID":
 					flag_chat_id = 1
 			try:
+				previous_name = data_inventory['name_inv']
 				if flag_name == 1:
-					previous_name = data_inventory['name_inv']
 					name_inventory = self.form_dialog.getDataInputText("Enter the inventory name:", data_inventory['name_inv'])
 					if not data_inventory['name_inv'] == name_inventory:
-						
 						flag_rename = 1
 						data_inventory['name_inv'] = name_inventory
 				if flag_frequency == 1:

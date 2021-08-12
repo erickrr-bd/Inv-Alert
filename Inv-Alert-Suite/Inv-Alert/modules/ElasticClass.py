@@ -1,10 +1,12 @@
-import requests
 from os import path
 from sys import exit
-from datetime import datetime
+from shutil import copy
 from time import sleep, strftime
+from datetime import datetime, date
 from modules.UtilsClass import Utils
 from ssl import create_default_context
+from modules.TelegramClass import Telegram
+from requests.exceptions import InvalidURL
 from elasticsearch_dsl import Q, Search, A
 from elasticsearch import Elasticsearch, RequestsHttpConnection, exceptions
 
@@ -13,12 +15,18 @@ Class that manages everything related to ElasticSearch.
 """
 class Elastic:
 	"""
-	Property that stores an object of type Utils.
+	Property that stores an object of the Utils class.
 	"""
 	utils = None
 
 	"""
-	Property that stores an object of type Utils.
+	Property that stores an object of the Telegram class.
+	"""
+	telegram = None
+
+	"""
+	Property that saves the data of the Inv-Alert
+	configuration file.
 	"""
 	inv_alert_conf = None
 
@@ -30,6 +38,7 @@ class Elastic:
 	"""
 	def __init__(self, inv_alert_conf):
 		self.utils = Utils()
+		self.telegram = Telegram()
 		self.inv_alert_conf = inv_alert_conf 
 
 	"""
@@ -108,7 +117,7 @@ class Elastic:
 				print("\nCONNECTION DATA:\n")
 				print("Cluster name: " + conn_es.info()['cluster_name'])
 				print("Elasticsearch version: " + conn_es.info()['version']['number'])
-		except (KeyError, exceptions.ConnectionError, exceptions.AuthenticationException, exceptions.AuthorizationException, requests.exceptions.InvalidURL) as exception:
+		except (KeyError, exceptions.ConnectionError, exceptions.AuthenticationException, exceptions.AuthorizationException, InvalidURL) as exception:
 			self.utils.createInvAlertLog(exception, 3)
 			print("\nFailed to connect to ElasticSearch. For more information, see the logs.")
 			exit(1)
@@ -116,14 +125,25 @@ class Elastic:
 			return conn_es
 
 	"""
-	Method that establishes the connection of Telk-Alert with ElasticSearch.
+	Method that obtains the inventory of a specific
+	ElasticSearch index.
 
 	Parameters:
 	self -- An instantiated object of the Elastic class.
-	telk_alert_conf -- List containing all the information in the Telk-Alert configuration file.
+	inventory_yaml -- Object that contains all the data of
+	                  a specific inventory.
+	conn_es -- Object that contains the connection to
+			   ElasticSearch.
 
-	Return:
-	conn_es -- Object that contains the connection to ElasticSearch.
+	Exceptions:
+	KeyError -- A Python KeyError exception is what is
+				raised when you try to access a key that
+				isn’t in a dictionary (dict).
+	OSError -- This exception is raised when a system function
+	           returns a system-related error, including I/O
+	           failures such as “file not found” or “disk full”
+	           (not for illegal argument types or other incidental
+	           errors).
 	"""
 	def getInventory(self, inventory_yaml, conn_es):
 		now = datetime.now()
@@ -139,13 +159,34 @@ class Elastic:
 				for event_found in result_inv_search.aggregations.events.buckets:
 					list_search_hosts.append(event_found.key)
 				path_database_file = self.utils.getPathInvAlert(self.inv_alert_conf['inv_folder']) + '/' + inventory_yaml['name_inv'] + '/database_inv.yaml'
+				path_database_txt = self.utils.getPathInvAlert(self.inv_alert_conf['inv_folder']) + '/' + inventory_yaml['name_inv'] + '/inv-' + str(date.today()) + '.txt'
 				if not path.exists(path_database_file):
 					self.createDatabaseFile(list_search_hosts, path_database_file)
 				else:
-					print("Si existe")
+					database_yaml = self.utils.readYamlFile(path_database_file, 'rU')
+					list_hosts_old = database_yaml['list_hosts']
+					list_hosts_added = list(set(list_search_hosts) - set(list_hosts_old))
+					list_hosts_removed = list(set(list_hosts_old) - set(list_search_hosts))
+					print("\nINVENTORY NAME: " + inventory_yaml['name_inv'])
+					print("Total hosts added: " + str(len(list_hosts_added)))
+					print("Total hosts removed: " + str(len(list_hosts_removed)))
+					if len(list_hosts_added) > 0:
+						for host_to_add in list_hosts_added:
+							list_hosts_old.append(host_to_add)
+					if len(list_hosts_removed) > 0:
+						for host_to_remove in list_hosts_removed:
+							list_hosts_old.remove(host_to_remove)
+					print("Total hosts: " + str(len(list_hosts_old)))
+					#self.createDatabaseFile(list_hosts_old, path_database_file)
+					copy(path_database_file, path_database_txt)
+					self.utils.ownerChange(path_database_txt)
+					message_telegram = self.telegram.getTelegramMessage(list_hosts_added, list_hosts_removed, list_hosts_old, inventory_yaml['name_inv'])
+					status_code_telegram = self.telegram.sendTelegramAlert(self.utils.decryptAES(inventory_yaml['telegram_chat_id']).decode('utf-8'), self.utils.decryptAES(inventory_yaml['telegram_bot_token']).decode('utf-8'), message_telegram, path_database_txt)
+					print(status_code_telegram)
 				sleep(60)
 		except (KeyError, OSError) as exception:
-			print("Error")
+			self.utils.createInvAlertLog(exception, 3)
+			print("\nFailed to get inventory. For more information, see the logs.")
 
 	"""
 	Method that creates the YAML file that will serve as the
@@ -153,7 +194,7 @@ class Elastic:
 
 	Parameters:
 	self -- An instantiated object of the Elastic class.
-	list_hosts -- List with all hosts found.
+	list_hosts -- List with all hosts.
 	path_database_file -- Path where the YAML file will be
 						  created.
 	"""
