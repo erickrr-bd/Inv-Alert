@@ -58,6 +58,7 @@ class Inventories:
 	def loadAllInventories(self):
 		try:
 			if float(self.inv_alert_conf['es_version']) < 7.0 or float(self.inv_alert_conf['es_version']) > 7.13:
+				self.utils.createInvAlertLog("ElasticSearch version not supported by Inv-Alert", 2)
 				print("\nElasticSearch version not supported by Inv-Alert.")
 			else:
 				print("Inv-Alert v3.0")
@@ -75,6 +76,7 @@ class Inventories:
 					print("\nINVENTORIES:")
 					print("Inventory folder: " + self.path_inventories)
 					print("Total inventories found: " + str(len(list_all_inventories)))
+					self.utils.createInvAlertLog("Total inventories found: " + str(len(list_all_inventories)), 1)
 					for inventory in list_all_inventories:
 						print(inventory + " loaded and executed.")
 						inventory_yaml = self.utils.readYamlFile(self.path_inventories + '/' + inventory + '/' + inventory + '.yaml', 'r')
