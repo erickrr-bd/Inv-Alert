@@ -202,7 +202,8 @@ class Utils:
 		logger = getLogger('Inv_Alert_Log')
 		logger.setLevel(INFO)
 		fh = FileHandler(name_log)
-		logger.addHandler(fh)
+		if (logger.hasHandlers()):
+   	 		logger.handlers.clear()
 		formatter = Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 		fh.setFormatter(formatter)
 		logger.addHandler(fh)

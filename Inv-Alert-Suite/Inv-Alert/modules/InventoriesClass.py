@@ -67,6 +67,7 @@ class Inventories:
 				print("Email: erickrr.tbd93@gmail.com, erodriguez@tekium.mx")
 				print("License: GPLv3")
 				print("\nInv-Alert started...")
+				self.utils.createInvAlertLog("Inv-Alert v3.0 started", 1)
 				conn_es = self.elastic.getConnectionElastic()
 				list_all_inventories = self.getListInventories()
 				if len(list_all_inventories) == 0:
@@ -76,8 +77,10 @@ class Inventories:
 					print("\nINVENTORIES:")
 					print("Inventory folder: " + self.path_inventories)
 					print("Total inventories found: " + str(len(list_all_inventories)))
+					self.utils.createInvAlertLog("Inventory folder: " + self.path_inventories, 1)
 					self.utils.createInvAlertLog("Total inventories found: " + str(len(list_all_inventories)), 1)
 					for inventory in list_all_inventories:
+						self.utils.createInvAlertLog(inventory + " loaded and executed", 1)
 						print(inventory + " loaded and executed.")
 						inventory_yaml = self.utils.readYamlFile(self.path_inventories + '/' + inventory + '/' + inventory + '.yaml', 'r')
 						thread_inventory = Thread(target = self.elastic.getInventory, args = (inventory_yaml, conn_es, )).start()

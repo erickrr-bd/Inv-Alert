@@ -151,42 +151,42 @@ class Elastic:
 		try:
 			while True:
 				now = datetime.now()
-				if (now.hour == int(date_scan[0]) and now.minute == int(date_scan[1])):
-					list_search_hosts = []
-					a = A('terms', field = inventory_yaml['field_name'], size = 10000)
-					search_inv = Search(index = inventory_yaml['index_name']).using(conn_es).params(request_timeout = 30)
-					if inventory_yaml['frequency_inv'] == "Daily":
-						search_aux_inv = search_inv.query('range', ** { '@timestamp' : { 'gte' : "now-1d", 'lte' : "now" }}).source(fields = None)
-					search_aux_inv.aggs.bucket('events', a)
-					result_inv_search = search_aux_inv.execute()
-					for event_found in result_inv_search.aggregations.events.buckets:
-						list_search_hosts.append(event_found.key)
-					path_database_file = self.utils.getPathInvAlert(self.inv_alert_conf['inv_folder']) + '/' + inventory_yaml['name_inv'] + '/database_inv.yaml'
-					path_database_txt = self.utils.getPathInvAlert(self.inv_alert_conf['inv_folder']) + '/' + inventory_yaml['name_inv'] + '/' + inventory_yaml['name_inv'] + '-' + str(date.today()) + '.txt'
-					if not path.exists(path_database_file):
-						self.createDatabaseFile(list_search_hosts, path_database_file)
-						message_telegram = self.telegram.getTelegramMessage([], [], list_search_hosts, inventory_yaml['name_inv'])
-					else:
-						database_yaml = self.utils.readYamlFile(path_database_file, 'rU')
-						list_hosts_old = database_yaml['list_hosts']
-						list_hosts_added = list(set(list_search_hosts) - set(list_hosts_old))
-						list_hosts_removed = list(set(list_hosts_old) - set(list_search_hosts))
-						print("\nINVENTORY NAME: " + inventory_yaml['name_inv'])
-						print("Total hosts added: " + str(len(list_hosts_added)))
-						print("Total hosts removed: " + str(len(list_hosts_removed)))
-						if len(list_hosts_added) > 0:
-							for host_to_add in list_hosts_added:
-								list_hosts_old.append(host_to_add)
-						if len(list_hosts_removed) > 0:
-							for host_to_remove in list_hosts_removed:
-								list_hosts_old.remove(host_to_remove)
-						print("Total hosts: " + str(len(list_hosts_old)))
-						self.createDatabaseFile(list_hosts_old, path_database_file)
-						message_telegram = self.telegram.getTelegramMessage(list_hosts_added, list_hosts_removed, list_hosts_old, inventory_yaml['name_inv'])
-					copy(path_database_file, path_database_txt)
-					self.utils.ownerChange(path_database_txt)
-					status_code_telegram = self.telegram.sendTelegramAlert(self.utils.decryptAES(inventory_yaml['telegram_chat_id']).decode('utf-8'), self.utils.decryptAES(inventory_yaml['telegram_bot_token']).decode('utf-8'), message_telegram, path_database_txt)
-					self.telegram.getStatusbyResponseCode(status_code_telegram, inventory_yaml['name_inv'])
+				#if (now.hour == int(date_scan[0]) and now.minute == int(date_scan[1])):
+				list_search_hosts = []
+				a = A('terms', field = inventory_yaml['field_name'], size = 10000)
+				search_inv = Search(index = inventory_yaml['index_name']).using(conn_es).params(request_timeout = 30)
+				if inventory_yaml['frequency_inv'] == "Daily":
+					search_aux_inv = search_inv.query('range', ** { '@timestamp' : { 'gte' : "now-1d", 'lte' : "now" }}).source(fields = None)
+				search_aux_inv.aggs.bucket('events', a)
+				result_inv_search = search_aux_inv.execute()
+				for event_found in result_inv_search.aggregations.events.buckets:
+					list_search_hosts.append(event_found.key)
+				path_database_file = self.utils.getPathInvAlert(self.inv_alert_conf['inv_folder']) + '/' + inventory_yaml['name_inv'] + '/database_inv.yaml'
+				path_database_txt = self.utils.getPathInvAlert(self.inv_alert_conf['inv_folder']) + '/' + inventory_yaml['name_inv'] + '/' + inventory_yaml['name_inv'] + '-' + str(date.today()) + '.txt'
+				if not path.exists(path_database_file):
+					self.createDatabaseFile(list_search_hosts, path_database_file)
+					message_telegram = self.telegram.getTelegramMessage([], [], list_search_hosts, inventory_yaml['name_inv'])
+				else:
+					database_yaml = self.utils.readYamlFile(path_database_file, 'rU')
+					list_hosts_old = database_yaml['list_hosts']
+					list_hosts_added = list(set(list_search_hosts) - set(list_hosts_old))
+					list_hosts_removed = list(set(list_hosts_old) - set(list_search_hosts))
+					print("\nINVENTORY NAME: " + inventory_yaml['name_inv'])
+					print("Total hosts added: " + str(len(list_hosts_added)))
+					print("Total hosts removed: " + str(len(list_hosts_removed)))
+					if len(list_hosts_added) > 0:
+						for host_to_add in list_hosts_added:
+							list_hosts_old.append(host_to_add)
+					if len(list_hosts_removed) > 0:
+						for host_to_remove in list_hosts_removed:
+							list_hosts_old.remove(host_to_remove)
+					print("Total hosts: " + str(len(list_hosts_old)))
+					self.createDatabaseFile(list_hosts_old, path_database_file)
+					message_telegram = self.telegram.getTelegramMessage(list_hosts_added, list_hosts_removed, list_hosts_old, inventory_yaml['name_inv'])
+				copy(path_database_file, path_database_txt)
+				self.utils.ownerChange(path_database_txt)
+				status_code_telegram = self.telegram.sendTelegramAlert(self.utils.decryptAES(inventory_yaml['telegram_chat_id']).decode('utf-8'), self.utils.decryptAES(inventory_yaml['telegram_bot_token']).decode('utf-8'), message_telegram, path_database_txt)
+				self.telegram.getStatusbyResponseCode(status_code_telegram, inventory_yaml['name_inv'])
 				sleep(60)
 		except (KeyError, OSError, exceptions.ConnectionTimeout, exceptions.RequestError) as exception:
 			self.utils.createInvAlertLog(exception, 3)
