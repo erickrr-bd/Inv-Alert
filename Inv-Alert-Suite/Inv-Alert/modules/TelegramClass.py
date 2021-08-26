@@ -64,20 +64,20 @@ class Telegram:
 	"""
 	def getTelegramMessage(self, list_hosts_added, list_hosts_removed, list_hosts_final, name_inv):
 		message = "" + u'\u26A0\uFE0F' + " " + name_inv +  " " + u'\u26A0\uFE0F' + '\n\n' + u'\u23F0' + " Alert sent: " + strftime("%c") + "\n\n"
-		message += u'\u270F\uFE0F' + " Total hosts added: " + str(len(list_hosts_added)) + '\n\n'
+		message += u'\u270F\uFE0F' + " Total hosts added: " + str(len(list_hosts_added)) + '\n'
 		if len(list_hosts_added) > 0:
 			for host_to_add in list_hosts_added:
-				message += u'\u2611\uFE0F' + ' ' + host_to_add + '\n'
-		message += '\n' + u'\u270F\uFE0F' + " Total hosts removed: " + str(len(list_hosts_removed)) + '\n\n'
+				message += '\n' + u'\u2611\uFE0F' + ' ' + host_to_add + '\n'
+		message += '\n' + u'\u270F\uFE0F' + " Total hosts removed: " + str(len(list_hosts_removed)) + '\n'
 		if len(list_hosts_removed) > 0:
 			for host_to_remove in list_hosts_removed:
-				message += u'\u2611\uFE0F' + ' ' + host_to_remove + '\n'
+				message += '\n' + u'\u2611\uFE0F' + ' ' + host_to_remove + '\n'
 		message += '\n\n' + "TOTAL HOSTS: " + str(len(list_hosts_final))
 		if len(message) > 4096:
 			message = u'\u26A0\uFE0F' + " " + name_inv +  " " + u'\u26A0\uFE0F' + u'\u23F0' + " Alert sent: " + strftime("%c") + "\n\n\n"
-			message += u'\u270F\uFE0F' + " Total hosts added: " + str(len(list_hosts_added))
+			message += u'\u270F\uFE0F' + " Total hosts added: " + str(len(list_hosts_added)) + '\n'
 			message += u'\u270F\uFE0F' + " Total hosts removed: " + str(len(list_hosts_removed))
-			message += "Total hosts: " + str(len(list_hosts_final))
+			message += '\n\n' + "Total hosts: " + str(len(list_hosts_final))
 		return message.encode('utf-8')
 
 	"""
