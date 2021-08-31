@@ -1,6 +1,7 @@
 # Inv-Alert v3.0
 
-Author: Erick Rodríguez 
+Author: Erick Rodríguez
+
 Email: erickrr.tbd93@gmail.com, erodriguez@tekium.mx
 
 License: GPLv3
