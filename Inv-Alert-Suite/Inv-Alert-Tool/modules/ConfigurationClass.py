@@ -41,7 +41,7 @@ class Configuration:
 	"""
 	def createConfiguration(self):
 		data_conf = []
-		version_es = self.form_dialog.getDataNumberDecimal("Enter the ElasticSearch version:", "7.13")
+		version_es = self.form_dialog.getDataNumberDecimal("Enter the ElasticSearch version:", "7.14")
 		host_es = self.form_dialog.getDataIP("Enter the ElasticSearch IP address:", "localhost")
 		port_es = self.form_dialog.getDataPort("Enter the ElasticSearch listening port:", "9200")
 		folder_inv = self.form_dialog.getDataNameFolderOrFile("Enter the name of the folder where the inventories created will be saved:", "folder_inv")

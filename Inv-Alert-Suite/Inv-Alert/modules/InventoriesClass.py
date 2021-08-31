@@ -57,7 +57,7 @@ class Inventories:
 	"""
 	def loadAllInventories(self):
 		try:
-			if float(self.inv_alert_conf['es_version']) < 7.0 or float(self.inv_alert_conf['es_version']) > 7.13:
+			if float(self.inv_alert_conf['es_version']) < 7.0 or float(self.inv_alert_conf['es_version']) > 7.14:
 				self.utils.createInvAlertLog("ElasticSearch version not supported by Inv-Alert", 2)
 				print("\nElasticSearch version not supported by Inv-Alert.")
 			else:
