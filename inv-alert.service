@@ -1,5 +1,5 @@
 [Unit]
-Description=Tekium Inv-Alert v3.0 Service
+Description=Inv-Alert v3.1
 After=networking.target
 StartLimitIntervalSec=0
 
