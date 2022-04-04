@@ -1,15 +1,15 @@
 #! /usr/bin/env python3
 
-from modules.FormClass import FormDialogs
+from modules.Inv_Alert_Tool_Class import InvAlertTool
 
 """
-FormDialogs type object.
+Property that stores a object of InvAlertTool class.
 """
-forms = FormDialogs()
+inv_alert_tool = InvAlertTool()
 
 """
 Main function of the application
 """
 if __name__ == "__main__":	
 	while True:
-		forms.mainMenu()
+		inv_alert_tool.mainMenu()
