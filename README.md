@@ -1,4 +1,4 @@
-# Inv-Alert v3.0
+# Inv-Alert v3.1
 
 Author: Erick Rodríguez
 
@@ -6,7 +6,13 @@ Email: erickrr.tbd93@gmail.com, erodriguez@tekium.mx
 
 License: GPLv3
 
-Inv-Alert is a tool that allows you to obtain a daily inventory of hostnames found in a specific ElasticSearch index.
+Application that obtains a daily inventory of hosts that report to a specific index in ElasticSearch.
+
+Inv-Alert was born from the need to have a tool that would obtain a daily inventory of the equipment that ingests events to ElasticSearch. In order to have an inventory of hosts that allows better control.
+
+For example, having an inventory of Windows (Winlogbeat) and/or Linux (Auditbeat) servers.
+
+Inv-Alert also sends an alert via Telegram with the changes found in the new inventory obtained compared to the previous day. In addition, it sends a text file with the names of all the hosts found in the same message.
 
 # Applications
 ## Inv-Alert
