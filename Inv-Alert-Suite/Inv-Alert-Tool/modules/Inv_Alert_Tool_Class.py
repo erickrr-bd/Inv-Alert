@@ -1,6 +1,8 @@
+from os import path
 from sys import exit
 from libPyDialog import libPyDialog
 from .Constants_Class import Constants
+from .Configuration_Class import Configuration
 
 class InvAlertTool:
 
@@ -9,6 +11,9 @@ class InvAlertTool:
 	__constants = None
 
 	def __init__(self):
+		"""
+		Method that corresponds to the constructor of the class.
+		"""
 		self.__constants = Constants()
 		self.__dialog = libPyDialog(self.__constants.BACKTITLE, self.mainMenu)
 		
@@ -28,7 +33,7 @@ class InvAlertTool:
 		:arg option: Option number.
 		"""
 		if option == 1:
-			print("Hola")
+			self.__defineConfiguration()
 		elif option == 2:
 			print("Hola")
 		elif option == 3:
@@ -37,3 +42,18 @@ class InvAlertTool:
 			print("Hola")
 		elif option == 5:
 			exit(1)
+
+
+	def __defineConfiguration(self):
+		"""
+		Method that defines the action to perform on the VS-Monitor configuration (create or modify).
+		"""
+		configuration = Configuration(self.mainMenu)
+		if not path.exists(self.__constants.PATH_FILE_CONFIGURATION):
+			option_configuration_false = self.__dialog.createRadioListDialog("Select a option:", 8, 50, self.__constants.OPTIONS_CONFIGURATION_FALSE, "Configuration Options")
+			if option_configuration_false == "Create":
+				configuration.createConfiguration()
+		else:
+			option_configuration_true = self.__dialog.createRadioListDialog("Select a option:", 8, 50, self.__constants.OPTIONS_CONFIGURATION_TRUE, "Configuration Options")
+			if option_configuration_true == "Modify":
+				print("Modificar")
