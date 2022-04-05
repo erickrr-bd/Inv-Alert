@@ -55,3 +55,51 @@ class Constants:
 	Options that are shown when the configuration file exists.
 	"""
 	OPTIONS_CONFIGURATION_TRUE = [("Modify", "Modify the configuration file", 0)]
+
+	"""
+	Options that are shown when a value is going to be modified in the Inv-Alert configuration.
+	"""
+	OPTIONS_FIELDS_UPDATE = [("Version", "ElasticSearch Version", 0),
+							 ("Host", "ElasticSearch Host", 0),
+							 ("Port", "ElasticSearch Port", 0),
+							 ("SSL/TLS", "Enable or disable SSL/TLS connection", 0),
+							 ("HTTP Authentication", "Enable or disable Http authentication", 0)]
+
+	"""
+	Options displayed when the use of SSL/TLS is enabled.
+	"""
+	OPTIONS_SSL_TLS_TRUE = [("Disable", "Disable SSL/TLS communication", 0),
+							("Certificate Validation", "Modify certificate validation", 0)]
+
+	"""
+	Options displayed when the use of SSL/TLS is disabled.
+	"""
+	OPTIONS_SSL_TLS_FALSE = [("Enable", "Enable SSL/TLS communication", 0)]
+
+	"""
+	Options displayed when SSL certificate validation is enabled.
+	"""
+	OPTIONS_VALIDATE_CERTIFICATE_TRUE = [("Disable", "Disable certificate validation", 0),
+								   		 ("Certificate File", "Change certificate file", 0)]
+
+	"""
+	Options displayed when SSL certificate validation is disabled.
+	"""
+	OPTIONS_VALIDATE_CERTIFICATE_FALSE = [("Enable", "Enable certificate validation", 0)]
+
+	"""
+	Options that are displayed when HTTP authentication is enabled.
+	"""
+	OPTIONS_HTTP_AUTHENTICATION_TRUE = [("Disable", "Disable HTTP Authentication", 0),
+								 		("Data", "Modify HTTP Authentication data", 0)]
+
+	"""
+	Options that are displayed when HTTP authentication is disabled.
+	"""
+	OPTIONS_HTTP_AUTHENTICATION_FALSE = [("Enable", "Enable HTTP Authentication", 0)]
+
+	"""
+	Options that are displayed when the HTTP authentication credentials are to be modified.
+	"""
+	OPTIONS_HTTP_AUTHENTICATION_DATA = [("Username", "Username for HTTP Authentication", 0),
+								 		("Password", "User password", 0)]
