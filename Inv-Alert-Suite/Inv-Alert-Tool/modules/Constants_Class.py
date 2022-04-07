@@ -8,7 +8,7 @@ class Constants:
 	BACKTITLE = "INV-ALERT-TOOL"
 
 	"""
-	Absolute path of the VS-Monitor configuration file.
+	Absolute path of the Inv-Alert configuration file.
 	"""
 	PATH_FILE_CONFIGURATION = "/etc/Inv-Alert-Suite/Inv-Alert/configuration/inv_alert_conf.yaml"
 
@@ -16,6 +16,11 @@ class Constants:
 	Absolute path of the file where the key for the encryption/decryption process is stored.
 	"""
 	PATH_KEY_FILE = "/etc/Inv-Alert-Suite/Inv-Alert/configuration/key"
+
+	"""
+	Absolute path of the VS-Monitor configuration file.
+	"""
+	PATH_INVENTORIES_FOLDER = "/etc/Inv-Alert-Suite/Inv-Alert/inventories"
 
 	"""
 	Absolute path of the application logs.
@@ -103,3 +108,8 @@ class Constants:
 	"""
 	OPTIONS_HTTP_AUTHENTICATION_DATA = [("Username", "Username for HTTP Authentication", 0),
 								 		("Password", "User password", 0)]
+
+	OPTIONS_INVENTORIES = [("1", "Create Inventory"),
+					  	   ("2", "Update Inventory"),
+					  	   ("3", "Delete Inventories"),
+					  	   ("4", "Show all Inventories")]

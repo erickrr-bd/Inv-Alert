@@ -2,6 +2,7 @@ from os import path
 from sys import exit
 from libPyDialog import libPyDialog
 from .Constants_Class import Constants
+from .Inventories_Class import Inventories
 from .Configuration_Class import Configuration
 
 """
@@ -35,6 +36,13 @@ class InvAlertTool:
 		self.__switchMainMenu(int(option_main_menu))
 
 
+	def __inventoriesMenu(self):
+		"""
+		"""
+		option_inventories_menu = self.__dialog.createMenuDialog("Select a option:", 12, 50, self.__constants.OPTIONS_INVENTORIES, "Inventories Menu")
+		self.__switchInventoriesMenu(int(option_inventories_menu))
+
+
 	def __switchMainMenu(self, option):
 		"""
 		Method that executes a certain action based on the number of the option chosen in the Main menu.
@@ -44,13 +52,19 @@ class InvAlertTool:
 		if option == 1:
 			self.__defineConfiguration()
 		elif option == 2:
-			print("Hola")
+			self.__inventoriesMenu()
 		elif option == 3:
 			print("Hola")
 		elif option == 4:
 			print("Hola")
 		elif option == 5:
 			exit(1)
+
+
+	def __switchInventoriesMenu(self, option):
+		inventories = Inventories(self.mainMenu)
+		if option == 1:
+			inventories.createNewInventory()
 
 
 	def __defineConfiguration(self):
