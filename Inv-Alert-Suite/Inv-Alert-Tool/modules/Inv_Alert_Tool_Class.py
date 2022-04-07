@@ -38,6 +38,7 @@ class InvAlertTool:
 
 	def __inventoriesMenu(self):
 		"""
+		Method that shows the Inventories menu.
 		"""
 		option_inventories_menu = self.__dialog.createMenuDialog("Select a option:", 12, 50, self.__constants.OPTIONS_INVENTORIES, "Inventories Menu")
 		self.__switchInventoriesMenu(int(option_inventories_menu))
@@ -62,9 +63,20 @@ class InvAlertTool:
 
 
 	def __switchInventoriesMenu(self, option):
+		"""
+		Method that executes a certain action based on the number of the option chosen in the Inventories menu.
+
+		:arg option: Option number.
+		"""
 		inventories = Inventories(self.mainMenu)
 		if option == 1:
 			inventories.createNewInventory()
+		elif option == 2:
+			inventories.updateInventory()
+		elif option == 3:
+			inventories.deleteInventories()
+		elif option == 4:
+			inventories.showAllInventories()
 
 
 	def __defineConfiguration(self):

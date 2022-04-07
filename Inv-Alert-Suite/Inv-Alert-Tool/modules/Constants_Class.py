@@ -109,7 +109,20 @@ class Constants:
 	OPTIONS_HTTP_AUTHENTICATION_DATA = [("Username", "Username for HTTP Authentication", 0),
 								 		("Password", "User password", 0)]
 
+	"""
+	Options displayed in the Inventories menu.
+	"""
 	OPTIONS_INVENTORIES = [("1", "Create Inventory"),
 					  	   ("2", "Update Inventory"),
 					  	   ("3", "Delete Inventories"),
 					  	   ("4", "Show all Inventories")]
+
+	"""
+	Options that are shown when a value is going to be modified in an inventory.
+	"""
+	OPTIONS_FIELDS_UPDATE = [("Name", "Inventory name", 0),
+							("Time", "Time at which it is executed", 0),
+							("Index", "Index pattern name", 0),
+							("Field", "Name of the field containing the hostname", 0),
+							("Bot Token", "Telegram bot token", 0),
+							("Chat ID", "Telegram channel identifier", 0)]
