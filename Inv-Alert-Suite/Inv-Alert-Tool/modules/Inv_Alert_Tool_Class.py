@@ -66,7 +66,7 @@ class InvAlertTool:
 		elif option == 3:
 			self.__serviceMenu()
 		elif option == 4:
-			print("Hola")
+			self.__showApplicationAbout()
 		elif option == 5:
 			exit(1)
 
@@ -118,3 +118,11 @@ class InvAlertTool:
 			option_configuration_true = self.__dialog.createRadioListDialog("Select a option:", 8, 50, self.__constants.OPTIONS_CONFIGURATION_TRUE, "Configuration Options")
 			if option_configuration_true == "Modify":
 				configuration.modifyConfiguration()
+
+
+	def __showApplicationAbout(self):
+		"""
+		Method that shows the "About" of the application.
+		"""
+		message_to_show = "\nCopyright@2022 Tekium. All rights reserved.\nInv-Alert v3.1\nAuthor: Erick Rodriguez\nEmail: erickrr.tbd93@gmail.com, erodriguez@tekium.mx\n" + "License: GPLv3\n\nApplication that obtains the daily inventory of hosts that ingest\ndata in a specific index in ElasticSearch."
+		self.__dialog.createScrollBoxDialog(message_to_show, 15, 70, "About")
