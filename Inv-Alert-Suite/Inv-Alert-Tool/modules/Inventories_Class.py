@@ -94,7 +94,7 @@ class Inventories:
 				path_inventory_to_update = self.__constants.PATH_INVENTORIES_FOLDER + '/' + option_list_inventories + '/' + option_list_inventories + ".yaml"
 				data_inventory = self.__utils.readYamlFile(path_inventory_to_update)
 				hash_inventory_file_yaml_old = self.__utils.getHashFunctionToFile(path_inventory_to_update)
-				options_fields_update = self.__dialog.createCheckListDialog("Select one or more options:", 14, 50, self.__constants.OPTIONS_FIELDS_UPDATE, "Inventory Fields")
+				options_fields_update = self.__dialog.createCheckListDialog("Select one or more options:", 14, 50, self.__constants.OPTIONS_FIELDS_UPDATE_INVENTORIES, "Inventory Fields")
 				inventory_name_actual = data_inventory['inventory_name']
 				if 'Name' in options_fields_update:
 					inventory_name = self.__dialog.createFolderOrFileNameDialog("Enter inventory name:", 8, 50, data_inventory['inventory_name'])

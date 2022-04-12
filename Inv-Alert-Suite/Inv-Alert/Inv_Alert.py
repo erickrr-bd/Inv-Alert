@@ -1,14 +1,14 @@
 #! /usr/bin/env python3
 
-from modules.InventoriesClass import Inventories
+from modules.Inv_Alert_Class import InvAlert
 
 """
-Property that stores an object of type Inventories.
+Attribute that stores an object of the InvAlert class.
 """
-inventories = Inventories()
+inv_alert = InvAlert()
 
 """
 Main function of the application.
 """
 if __name__ == "__main__":
-	inventories.loadAllInventories()
+	inv_alert.startInvAlert()

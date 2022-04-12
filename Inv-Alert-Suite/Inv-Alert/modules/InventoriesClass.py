@@ -88,6 +88,10 @@ class Inventories:
 			self.utils.createInvAlertLog(exception, 3)
 			print("\nError executing inventories. For more information, see the logs.")
 			exit(1)
+		except (self.__elk.exceptions.AuthenticationException, self.__elk.exceptions.ConnectionError, self.__elk.exceptions.AuthorizationException, self.__elk.exceptions.RequestError, self.__elk.TransportError) as exception:
+			self.__logger.createApplicationLog(exception, 3)
+			self.__logger.createApplicationLog("Error connecting to ElasticSearch. For more information, see the logs.", 3, use_stream_handler = True)
+			exit(1)
 
 	"""
 	Method that obtains a list with all the inventories
