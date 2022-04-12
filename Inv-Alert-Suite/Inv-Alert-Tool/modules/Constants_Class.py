@@ -126,3 +126,11 @@ class Constants:
 							("Field", "Name of the field containing the hostname", 0),
 							("Bot Token", "Telegram bot token", 0),
 							("Chat ID", "Telegram channel identifier", 0)]
+
+	"""
+	Options displayed in the service menu.
+	"""
+	OPTIONS_SERVICE_MENU = [("1", "Start Service"),
+				            ("2", "Restart Service"),
+				            ("3", "Stop Service"),
+				            ("4", "Service Status")]

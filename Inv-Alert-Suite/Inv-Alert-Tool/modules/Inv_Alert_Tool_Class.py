@@ -1,5 +1,6 @@
 from os import path
 from sys import exit
+from .Service_Class import Service
 from libPyDialog import libPyDialog
 from .Constants_Class import Constants
 from .Inventories_Class import Inventories
@@ -44,6 +45,14 @@ class InvAlertTool:
 		self.__switchInventoriesMenu(int(option_inventories_menu))
 
 
+	def __serviceMenu(self):
+		"""
+		Method that shows the Service menu.
+		"""
+		option_service_menu = self.__dialog.createMenuDialog("Select a option:", 12, 50, self.__constants.OPTIONS_SERVICE_MENU, "Service Menu")
+		self.__switchServiceMenu(int(option_service_menu))
+
+
 	def __switchMainMenu(self, option):
 		"""
 		Method that executes a certain action based on the number of the option chosen in the Main menu.
@@ -55,7 +64,7 @@ class InvAlertTool:
 		elif option == 2:
 			self.__inventoriesMenu()
 		elif option == 3:
-			print("Hola")
+			self.__serviceMenu()
 		elif option == 4:
 			print("Hola")
 		elif option == 5:
@@ -77,6 +86,23 @@ class InvAlertTool:
 			inventories.deleteInventories()
 		elif option == 4:
 			inventories.showAllInventories()
+
+
+	def __switchServiceMenu(self, option):
+		"""
+		Method that executes a certain action based on the number of the option chosen in the Service menu.
+
+		:arg option: Option number.
+		"""
+		service = Service(self.mainMenu)
+		if option == 1:
+			service.startService()
+		elif option == 2:
+			service.restartService()
+		elif option == 3:
+			service.stopService()
+		elif option == 4:
+			service.getActualStatusService()
 
 
 	def __defineConfiguration(self):
