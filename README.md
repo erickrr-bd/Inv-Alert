@@ -36,15 +36,15 @@ Characteristics:
 - Allows you to start, restart, stop and get the status of the Inv-Alert service.
 
 # Requirements
-- CentOS 8 (So far it has only been tested in this version)
+- CentOS 8, RedHat 8 or Rocky Linux 8 (So far it has only been tested in this version)
 - ElasticSearch 7.x 
 - Python 3.6
 - Python Libraries
-  - libPyDialog
-  - libPyElk
-  - libPyTelegram
-  - libPyLog
-  - libPyUtils
+  - libPyDialog (https://github.com/erickrr-bd/libPyDialog)
+  - libPyElk (https://github.com/erickrr-bd/libPyElk)
+  - libPyTelegram (https://github.com/erickrr-bd/libPyTelegram)
+  - libPyLog (https://github.com/erickrr-bd/libPyLog)
+  - libPyUtils (https://github.com/erickrr-bd/libPyUtils)
 
 # Installation
 To install or update Inv-Alert, you must run the installer_inv_alert.sh executable with administrator rights. The installer will perform the following actions:
