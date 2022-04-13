@@ -40,12 +40,11 @@ Characteristics:
 - ElasticSearch 7.x 
 - Python 3.6
 - Python Libraries
-  - elasticsearch-dsl
-  - requests
-  - pycurl
-  - pythondialog
-  - pycryptodome
-  - pyyaml
+  - libPyDialog
+  - libPyElk
+  - libPyTelegram
+  - libPyLog
+  - libPyUtils
 
 # Installation
 To install or update Inv-Alert, you must run the installer_inv_alert.sh executable with administrator rights. The installer will perform the following actions:
