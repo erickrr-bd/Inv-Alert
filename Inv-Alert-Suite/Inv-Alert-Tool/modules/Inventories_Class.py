@@ -74,8 +74,8 @@ class Inventories:
 		path_new_inventory_yaml = path_new_inventory + '/' + data_inventory[0] + ".yaml"
 		self.__createInventoryFileYaml(data_inventory, path_new_inventory, path_new_inventory_yaml)
 		if path.exists(path_new_inventory_yaml):
-			self.__logger.createApplicationLog("Configuration file created", 1)
-			self.__dialog.createMessageDialog("\nConfiguration file created.", 7, 50, "Notification Message")
+			self.__logger.createApplicationLog("Inventory created: " + inventory_name, 1)
+			self.__dialog.createMessageDialog("\nInventory created: " + inventory_name + '.', 7, 50, "Notification Message")
 		self.__action_to_cancel()
 
 
@@ -94,7 +94,7 @@ class Inventories:
 				path_inventory_to_update = self.__constants.PATH_INVENTORIES_FOLDER + '/' + option_list_inventories + '/' + option_list_inventories + ".yaml"
 				data_inventory = self.__utils.readYamlFile(path_inventory_to_update)
 				hash_inventory_file_yaml_old = self.__utils.getHashFunctionToFile(path_inventory_to_update)
-				options_fields_update = self.__dialog.createCheckListDialog("Select one or more options:", 14, 50, self.__constants.OPTIONS_FIELDS_UPDATE_INVENTORIES, "Inventory Fields")
+				options_fields_update = self.__dialog.createCheckListDialog("Select one or more options:", 14, 70, self.__constants.OPTIONS_FIELDS_UPDATE_INVENTORIES, "Inventory Fields")
 				inventory_name_actual = data_inventory['inventory_name']
 				if 'Name' in options_fields_update:
 					inventory_name = self.__dialog.createFolderOrFileNameDialog("Enter inventory name:", 8, 50, data_inventory['inventory_name'])

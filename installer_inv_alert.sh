@@ -51,6 +51,7 @@ if [ $opc = "I" ] || [ $opc = "i" ]; then
 	echo ''
 	cp -r Inv-Alert-Suite /etc/
 	mkdir /etc/Inv-Alert-Suite/Inv-Alert/configuration
+	mkdir /etc/Inv-Alert-Suite/Inv-Alert/inventories
 	mkdir /var/log/Inv-Alert
 	chown inv_alert:inv_alert -R /etc/Inv-Alert-Suite
 	chown inv_alert:inv_alert -R /var/log/Inv-Alert
