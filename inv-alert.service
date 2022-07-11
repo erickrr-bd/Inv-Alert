@@ -1,5 +1,5 @@
 [Unit]
-Description=Inv-Alert v3.1
+Description=Inv-Alert v3.2
 After=networking.target
 StartLimitIntervalSec=0
 
