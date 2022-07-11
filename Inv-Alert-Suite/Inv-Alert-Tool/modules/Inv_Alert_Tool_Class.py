@@ -33,7 +33,7 @@ class InvAlertTool:
 		"""
 		Method that shows the main menu of the application.
 		"""
-		option_main_menu = self.__dialog.createMenuDialog("Select a option:", 14, 50, self.__constants.OPTIONS_MAIN_MENU, "Main Menu")
+		option_main_menu = self.__dialog.createMenuDialog("Select a option:", 12, 50, self.__constants.OPTIONS_MAIN_MENU, "Main Menu")
 		self.__switchMainMenu(int(option_main_menu))
 
 
@@ -57,7 +57,7 @@ class InvAlertTool:
 		"""
 		Method that executes a certain action based on the number of the option chosen in the Main menu.
 
-		:arg option: Option number.
+		:arg option (integer): Option number.
 		"""
 		if option == 1:
 			self.__defineConfiguration()
@@ -75,7 +75,7 @@ class InvAlertTool:
 		"""
 		Method that executes a certain action based on the number of the option chosen in the Inventories menu.
 
-		:arg option: Option number.
+		:arg option (integer): Option number.
 		"""
 		inventories = Inventories(self.mainMenu)
 		if option == 1:
@@ -92,7 +92,7 @@ class InvAlertTool:
 		"""
 		Method that executes a certain action based on the number of the option chosen in the Service menu.
 
-		:arg option: Option number.
+		:arg option (integer): Option number.
 		"""
 		service = Service(self.mainMenu)
 		if option == 1:
@@ -124,5 +124,5 @@ class InvAlertTool:
 		"""
 		Method that shows the "About" of the application.
 		"""
-		message_to_show = "\nCopyright@2022 Tekium. All rights reserved.\nInv-Alert v3.1\nAuthor: Erick Rodriguez\nEmail: erickrr.tbd93@gmail.com, erodriguez@tekium.mx\n" + "License: GPLv3\n\nApplication that obtains the daily inventory of hosts that ingest\ndata in a specific index in ElasticSearch."
+		message_to_show = "\nCopyright@2022 Tekium. All rights reserved.\nInv-Alert v3.2\nAuthor: Erick Rodriguez\nEmail: erickrr.tbd93@gmail.com, erodriguez@tekium.mx\n" + "License: GPLv3\n\nApplication that obtains the daily inventory of hosts that ingest\ndata in a specific index in ElasticSearch."
 		self.__dialog.createScrollBoxDialog(message_to_show, 15, 70, "About")

@@ -3,7 +3,7 @@
 from modules.Inv_Alert_Tool_Class import InvAlertTool
 
 """
-Property that stores a object of InvAlertTool class.
+Attribute that stores a object of InvAlertTool class.
 """
 inv_alert_tool = InvAlertTool()
 

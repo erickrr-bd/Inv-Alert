@@ -28,11 +28,6 @@ class Constants:
 	NAME_FILE_LOG = "/var/log/Inv-Alert/inv-alert-tool-log-"
 
 	"""
-	Name of the application logs.
-	"""
-	NAME_LOG = "INV_ALERT_TOOL_LOG"
-
-	"""
 	Name of the user created for the operation of the application.
 	"""
 	USER = "inv_alert"
@@ -64,8 +59,7 @@ class Constants:
 	"""
 	Options that are shown when a value is going to be modified in the Inv-Alert configuration.
 	"""
-	OPTIONS_FIELDS_UPDATE = [("Version", "ElasticSearch Version", 0),
-							 ("Host", "ElasticSearch Host", 0),
+	OPTIONS_FIELDS_UPDATE = [("Host", "ElasticSearch Host", 0),
 							 ("Port", "ElasticSearch Port", 0),
 							 ("SSL/TLS", "Enable or disable SSL/TLS connection", 0),
 							 ("HTTP Authentication", "Enable or disable Http authentication", 0)]
