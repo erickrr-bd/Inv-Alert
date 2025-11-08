@@ -206,7 +206,7 @@ class InvAlertTool:
 		Method that displays the about of the application.
 		"""
 		try:
-			text = "\nAuthor: Erick Roberto Rodríguez Rodríguez\nEmail: erickrr.tbd93@gmail.com, erodriguez@tekium.mx\nGithub: https://github.com/erickrr-bd/Inv-Alert\nInv-Alert v3.3 - November 2025" + "\n\nPython script that generates a daily servers' inventory\nwith Elastic beats installed."
+			text = "\nAuthor: Erick Roberto Rodríguez Rodríguez\nEmail: erickrr.tbd93@gmail.com, erodriguez@tekium.mx\nGithub: https://github.com/erickrr-bd/Inv-Alert\nInv-Alert v3.3 - November 2025" + "\n\nPython tool for automating the daily inventory of assets\nregistered in a specific index pattern."
 			self.dialog.create_scrollbox(text, 13, 60, "About")
 		except KeyboardInterrupt:
 			pass
