@@ -1,15 +1,11 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python3.12
 
+"""
+Main function.
+"""
 from modules.Inv_Alert_Tool_Class import InvAlertTool
 
-"""
-Attribute that stores a object of InvAlertTool class.
-"""
-inv_alert_tool = InvAlertTool()
-
-"""
-Main function of the application
-"""
-if __name__ == "__main__":	
+if __name__ == "__main__":
+	inv_alert_tool = InvAlertTool()
 	while True:
-		inv_alert_tool.mainMenu()
+		inv_alert_tool.main_menu()

@@ -1,130 +1,77 @@
 """
-Class that manages all the constant variables of the application.
+Class that manages the application's constants.
 """
+from typing import List
+from dataclasses import dataclass, field
+
+@dataclass(frozen = True)
 class Constants:
 	"""
-	Title that is shown in the background of the application.
+	Message displayed in the background.
 	"""
-	BACKTITLE = "INV-ALERT-TOOL"
+	BACKTITLE: str = "INV-ALERT-TOOL v3.3 by Erick Rodriguez"
 
 	"""
-	Absolute path of the Inv-Alert configuration file.
+	Inv-Alert's configuration file.
 	"""
-	PATH_FILE_CONFIGURATION = "/etc/Inv-Alert-Suite/Inv-Alert/configuration/inv_alert_conf.yaml"
+	INV_ALERT_CONFIGURATION: str = "/etc/Inv-Alert-Suite/Inv-Alert/configuration/inv_alert.yaml"
 
 	"""
-	Absolute path of the file where the key for the encryption/decryption process is stored.
+	Inventories' path.
 	"""
-	PATH_KEY_FILE = "/etc/Inv-Alert-Suite/Inv-Alert/configuration/key"
+	INVENTORIES_FOLDER: str = "/etc/Inv-Alert-Suite/Inv-Alert/inventories"
 
 	"""
-	Absolute path of the VS-Monitor configuration file.
+	Encryption key's file.
 	"""
-	PATH_INVENTORIES_FOLDER = "/etc/Inv-Alert-Suite/Inv-Alert/inventories"
+	KEY_FILE: str = "/etc/Inv-Alert-Suite/Inv-Alert/configuration/key"
 
 	"""
-	Absolute path of the application logs.
+	Inv-Alert-Tool's log file.
 	"""
-	NAME_FILE_LOG = "/var/log/Inv-Alert/inv-alert-tool-log-"
+	LOG_FILE: str = "/var/log/Inv-Alert/inv-alert-tool-log"
 
 	"""
-	Name of the user created for the operation of the application.
+	Owner user.
 	"""
-	USER = "inv_alert"
+	USER: str = "inv_alert"
 
 	"""
-	Name of the group created for the operation of the application.
+	Owner group.
 	"""
-	GROUP = "inv_alert"
+	GROUP: str = "inv_alert"
 
 	"""
-	Options displayed in the main menu.
+	Options displayed in the "Main" menu.
 	"""
-	OPTIONS_MAIN_MENU = [("1", "Inv-Alert Configuration"),
-						 ("2", "Inventories"),
-				  	  	 ("3", "Inv-Alert Service"),
-				  	  	 ("4", "About"),
-			      	  	 ("5", "Exit")]
+	MAIN_MENU_OPTIONS: List = field(default_factory = lambda : [("1", "Configuration"), ("2", "Inventories"), ("3", "Service"), ("4", "About"), ("5", "Exit")])
 
 	"""
-	Options that are shown when the configuration file does not exist.
+	Options that are displayed when the configuration file doesn't exist.
 	"""
-	OPTIONS_CONFIGURATION_FALSE = [("Create", "Create the configuration file", 0)]
+	CONFIGURATION_OPTIONS_FALSE: List = field(default_factory = lambda : [("Create", "Create the configuration file", 0)])
 
 	"""
-	Options that are shown when the configuration file exists.
+	Options that are displayed when the configuration file exists.
 	"""
-	OPTIONS_CONFIGURATION_TRUE = [("Modify", "Modify the configuration file", 0)]
+	CONFIGURATION_OPTIONS_TRUE: List = field(default_factory = lambda : [("Modify", "Modify the configuration file", 0), ("Display", "Display the configuration file", 0)])
+	
+	"""
+	Options displayed in the "Inventories" menu.
+	"""
+	INVENTORIES_MENU_OPTIONS: List = field(default_factory = lambda : [("1", "Create inventory"), ("2", "Modify inventory"), ("3", "Display inventory's configuration"), ("4", "Delete inventory(s)"), ("5", "Disable/Enable inventory(s)"), ("6", "Display inventory(s)")])
 
 	"""
-	Options that are shown when a value is going to be modified in the Inv-Alert configuration.
+	Options displayed in the "Service" menu.
 	"""
-	OPTIONS_FIELDS_UPDATE = [("Host", "ElasticSearch Host", 0),
-							 ("Port", "ElasticSearch Port", 0),
-							 ("SSL/TLS", "Enable or disable SSL/TLS connection", 0),
-							 ("HTTP Authentication", "Enable or disable Http authentication", 0)]
+	SERVICE_MENU_OPTIONS: List = field(default_factory = lambda : [("1", "Start Service"), ("2", "Restart Service"), ("3", "Stop Service"), ("4", "Service Status")])
 
 	"""
-	Options displayed when the use of SSL/TLS is enabled.
+	Inventory's fields.
 	"""
-	OPTIONS_SSL_TLS_TRUE = [("Disable", "Disable SSL/TLS communication", 0),
-							("Certificate Validation", "Modify certificate validation", 0)]
+	INVENTORY_FIELDS: List = field(default_factory = lambda : [("Name", "Inventory's name", 0), ("Time", "Execution Time", 0), ("Index", "ElasticSearch's index pattern", 0), ("Timestamp", "Timestamp field's name", 0), ("Hostname", "Hostname field's name", 0), ("IP", "IP Address field's name", 0), ("Bot Token", "Telegram Bot Token", 0), ("Chat ID", "Telegram channel identifier", 0)])
 
 	"""
-	Options displayed when the use of SSL/TLS is disabled.
+	Options displayed in the "Disable/Enable Inventories" menu.
 	"""
-	OPTIONS_SSL_TLS_FALSE = [("Enable", "Enable SSL/TLS communication", 0)]
-
-	"""
-	Options displayed when SSL certificate validation is enabled.
-	"""
-	OPTIONS_VALIDATE_CERTIFICATE_TRUE = [("Disable", "Disable certificate validation", 0),
-								   		 ("Certificate File", "Change certificate file", 0)]
-
-	"""
-	Options displayed when SSL certificate validation is disabled.
-	"""
-	OPTIONS_VALIDATE_CERTIFICATE_FALSE = [("Enable", "Enable certificate validation", 0)]
-
-	"""
-	Options that are displayed when HTTP authentication is enabled.
-	"""
-	OPTIONS_HTTP_AUTHENTICATION_TRUE = [("Disable", "Disable HTTP Authentication", 0),
-								 		("Data", "Modify HTTP Authentication data", 0)]
-
-	"""
-	Options that are displayed when HTTP authentication is disabled.
-	"""
-	OPTIONS_HTTP_AUTHENTICATION_FALSE = [("Enable", "Enable HTTP Authentication", 0)]
-
-	"""
-	Options that are displayed when the HTTP authentication credentials are to be modified.
-	"""
-	OPTIONS_HTTP_AUTHENTICATION_DATA = [("Username", "Username for HTTP Authentication", 0),
-								 		("Password", "User password", 0)]
-
-	"""
-	Options displayed in the Inventories menu.
-	"""
-	OPTIONS_INVENTORIES = [("1", "Create Inventory"),
-					  	   ("2", "Update Inventory"),
-					  	   ("3", "Delete Inventories"),
-					  	   ("4", "Show all Inventories")]
-
-	"""
-	Options that are shown when a value is going to be modified in an inventory.
-	"""
-	OPTIONS_FIELDS_UPDATE_INVENTORIES = [("Name", "Inventory name", 0),
-										 ("Time", "Time at which it is executed", 0),
-										 ("Index", "Index pattern name", 0),
-										 ("Field", "Name of the field containing the hostname", 0),
-										 ("Bot Token", "Telegram bot token", 0),
-								  		 ("Chat ID", "Telegram channel identifier", 0)]
-
-	"""
-	Options displayed in the service menu.
-	"""
-	OPTIONS_SERVICE_MENU = [("1", "Start Service"),
-				            ("2", "Restart Service"),
-				            ("3", "Stop Service"),
-				            ("4", "Service Status")]
+	DISABLE_ENABLE_MENU_OPTIONS: List = field(default_factory = lambda : [("1", "Disable Inventories"), ("2", "Enable Inventories")])

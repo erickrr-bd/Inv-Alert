@@ -1,128 +1,214 @@
+"""
+Class that manages everything related to Inv-Alert-Tool.
+"""
 from os import path
 from sys import exit
-from .Service_Class import Service
+from libPyLog import libPyLog
+from dataclasses import dataclass
+from libPyUtils import libPyUtils
 from libPyDialog import libPyDialog
 from .Constants_Class import Constants
 from .Inventories_Class import Inventories
-from .Configuration_Class import Configuration
+from libPyConfiguration import libPyConfiguration
 
-"""
-Class that manages what is related to the interfaces and actions of Inv-Alert-Tool.
-"""
+@dataclass
 class InvAlertTool:
-	"""
-	Attribute that stores an object of the libPyDialog class.
-	"""
-	__dialog = None
 
-	"""
-	Attribute that stores an object of the Constants class.
-	"""
-	__constants = None
-
-
-	def __init__(self):
+	def __init__(self) -> None:
 		"""
-		Method that corresponds to the constructor of the class.
+		Class constructor.
 		"""
-		self.__constants = Constants()
-		self.__dialog = libPyDialog(self.__constants.BACKTITLE, self.mainMenu)
-		
+		self.logger = libPyLog()
+		self.utils = libPyUtils()
+		self.constants = Constants()
+		self.dialog = libPyDialog(self.constants.BACKTITLE)
 
-	def mainMenu(self):
+
+	def main_menu(self) -> None:
 		"""
-		Method that shows the main menu of the application.
+		Main menu.
+    	"""
+		try:
+			option = self.dialog.create_menu("Select a option:", 12, 50, self.constants.MAIN_MENU_OPTIONS, "Main Menu")
+			self.switch_main_menu(int(option))
+		except KeyboardInterrupt:
+			pass
+
+
+	def inventories_menu(self) -> None:
 		"""
-		option_main_menu = self.__dialog.createMenuDialog("Select a option:", 12, 50, self.__constants.OPTIONS_MAIN_MENU, "Main Menu")
-		self.__switchMainMenu(int(option_main_menu))
-
-
-	def __inventoriesMenu(self):
+		Inventories' menu.
 		"""
-		Method that shows the Inventories menu.
+		option = self.dialog.create_menu("Select a option:", 13, 50, self.constants.INVENTORIES_MENU_OPTIONS, "Inventories Menu")
+		self.switch_inventories_menu(int(option))
+
+
+	def disable_enable_inventories_menu(self) -> None:
 		"""
-		option_inventories_menu = self.__dialog.createMenuDialog("Select a option:", 12, 50, self.__constants.OPTIONS_INVENTORIES, "Inventories Menu")
-		self.__switchInventoriesMenu(int(option_inventories_menu))
-
-
-	def __serviceMenu(self):
+		Disable/Enable Inventories menu.
 		"""
-		Method that shows the Service menu.
+		option = self.dialog.create_menu("Select a option:", 9, 50, self.constants.DISABLE_ENABLE_MENU_OPTIONS, "Disable/Enable Inventories Menu")
+		self.switch_disable_enable_inventories_menu(int(option))
+
+
+	def service_menu(self) -> None:
 		"""
-		option_service_menu = self.__dialog.createMenuDialog("Select a option:", 12, 50, self.__constants.OPTIONS_SERVICE_MENU, "Service Menu")
-		self.__switchServiceMenu(int(option_service_menu))
-
-
-	def __switchMainMenu(self, option):
+		Inv-Alert's service menu.
 		"""
-		Method that executes a certain action based on the number of the option chosen in the Main menu.
+		option = self.dialog.create_menu("Select a option:", 11, 50, self.constants.SERVICE_MENU_OPTIONS, "Inv-Alert Service Menu")
+		self.switch_service_menu(int(option))
 
-		:arg option (integer): Option number.
+
+	def switch_main_menu(self, option: int) -> None:
 		"""
-		if option == 1:
-			self.__defineConfiguration()
-		elif option == 2:
-			self.__inventoriesMenu()
-		elif option == 3:
-			self.__serviceMenu()
-		elif option == 4:
-			self.__showApplicationAbout()
-		elif option == 5:
-			exit(1)
+		Method that executes an action based on the option chosen in the "Main" menu.
 
-
-	def __switchInventoriesMenu(self, option):
+		Parameters:
+    		option (int): Chosen option.
 		"""
-		Method that executes a certain action based on the number of the option chosen in the Inventories menu.
+		match option:
+			case 1:
+				self.define_configuration()
+			case 2:
+				self.inventories_menu()
+			case 3:
+				self.service_menu()
+			case 4:
+				self.display_about()
+			case 5:
+				exit(1)
 
-		:arg option (integer): Option number.
+
+	def switch_inventories_menu(self, option: int) -> None:
 		"""
-		inventories = Inventories(self.mainMenu)
-		if option == 1:
-			inventories.createNewInventory()
-		elif option == 2:
-			inventories.updateInventory()
-		elif option == 3:
-			inventories.deleteInventories()
-		elif option == 4:
-			inventories.showAllInventories()
+		Method that executes an action based on the option chosen in the "Inventories" menu.
 
-
-	def __switchServiceMenu(self, option):
+		Parameters:
+    		option (int): Chosen option.
 		"""
-		Method that executes a certain action based on the number of the option chosen in the Service menu.
+		inventory = Inventories()
+		match option:
+			case 1:
+				self.create_inventory()
+			case 2:
+				inventory.modify_inventory()
+			case 3:
+				inventory.display_configuration()
+			case 4:
+				inventory.delete_inventories()
+			case 5:
+				self.disable_enable_inventories_menu()
+			case 6:
+				inventory.display_inventories()
 
-		:arg option (integer): Option number.
+
+	def switch_disable_enable_inventories_menu(self, option: int) -> None:
 		"""
-		service = Service(self.mainMenu)
-		if option == 1:
-			service.startService()
-		elif option == 2:
-			service.restartService()
-		elif option == 3:
-			service.stopService()
-		elif option == 4:
-			service.getActualStatusService()
+		Method that executes an action based on the option chosen in the "Disable/Enable Inventories" menu.
+
+		Parameters:
+    		option (int): Chosen option.
+		"""
+		inventory = Inventories()
+		match option:
+			case 1:
+				inventory.disable_inventory()
+			case 2:
+				inventory.enable_inventory()
 
 
-	def __defineConfiguration(self):
+	def switch_service_menu(self, option: int) -> None:
 		"""
-		Method that defines the action to perform on the Inv-Alert configuration (create or modify).
+		Method that executes an action based on the option chosen in the "Inv-Alert Service" menu.
+
+		Parameters:
+    		option (int): Chosen option.
 		"""
-		configuration = Configuration(self.mainMenu)
-		if not path.exists(self.__constants.PATH_FILE_CONFIGURATION):
-			option_configuration_false = self.__dialog.createRadioListDialog("Select a option:", 8, 50, self.__constants.OPTIONS_CONFIGURATION_FALSE, "Configuration Options")
-			if option_configuration_false == "Create":
-				configuration.createConfiguration()
+		match option:
+			case 1:
+				result = self.utils.manage_daemon("inv-alert.service", 1)
+				if result == 0:
+					self.dialog.create_message("\nInv-Alert service started.", 7, 50, "Notification Message")
+					self.logger.create_log("Inv-Alert service started", 2, "_manageService", use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
+			case 2:
+				result = self.utils.manage_daemon("inv-alert.service", 2)
+				if result == 0:
+					self.dialog.create_message("\nInv-Alert service restarted.", 7, 50, "Notification Message")
+					self.logger.create_log("Inv-Alert service restarted", 2, "_manageService", use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
+			case 3:
+				result = self.utils.manage_daemon("inv-alert.service", 3)
+				if result == 0:
+					self.dialog.create_message("\nInv-Alert service stopped.", 7, 50, "Notification Message")
+					self.logger.create_log("Inv-Alert service stopped", 3, "_manageService", use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
+			case 4:
+				service_status = self.utils.get_detailed_status_by_daemon("inv-alert.service", "/tmp/inv_alert.status")
+				self.dialog.create_scrollbox(service_status, 18, 70, "Inv-Alert Service")
+
+
+	def define_configuration(self) -> None:
+		"""
+		Method that defines the action to be performed on the Inv-Alert's configuration.
+		"""
+		if not path.exists(self.constants.INV_ALERT_CONFIGURATION):
+			option = self.dialog.create_radiolist("Select a option:", 8, 50, self.constants.CONFIGURATION_OPTIONS_FALSE, "Inv-Alert Configuration")
+			if option == "Create":
+				self.create_configuration()
 		else:
-			option_configuration_true = self.__dialog.createRadioListDialog("Select a option:", 8, 50, self.__constants.OPTIONS_CONFIGURATION_TRUE, "Configuration Options")
-			if option_configuration_true == "Modify":
-				configuration.modifyConfiguration()
+			option = self.dialog.create_radiolist("Select a option:", 9, 50, self.constants.CONFIGURATION_OPTIONS_TRUE, "Inv-Alert Configuration")
+			self.modify_configuration() if option == "Modify" else self.display_configuration()
 
 
-	def __showApplicationAbout(self):
+	def create_configuration(self) -> None:
 		"""
-		Method that shows the "About" of the application.
+		Method that creates the Inv-Alert's configuration.
 		"""
-		message_to_show = "\nCopyright@2022 Tekium. All rights reserved.\nInv-Alert v3.2\nAuthor: Erick Rodriguez\nEmail: erickrr.tbd93@gmail.com, erodriguez@tekium.mx\n" + "License: GPLv3\n\nApplication that obtains the daily inventory of hosts that ingest\ndata in a specific index in ElasticSearch."
-		self.__dialog.createScrollBoxDialog(message_to_show, 15, 70, "About")
+		inv_alert_data = libPyConfiguration(self.constants.BACKTITLE)
+		inv_alert_data.define_es_host()
+		inv_alert_data.define_verificate_certificate()
+		inv_alert_data.define_use_authentication(self.constants.KEY_FILE)
+		inv_alert_data.create_file(inv_alert_data.convert_object_to_dict(), self.constants.INV_ALERT_CONFIGURATION, self.constants.LOG_FILE, self.constants.USER, self.constants.GROUP)
+
+
+	def modify_configuration(self) -> None:
+		"""
+		Method that updates or modifies the Inv-Alert's configuration.
+		"""
+		inv_alert_data = libPyConfiguration(self.constants.BACKTITLE)
+		inv_alert_data.modify_configuration(self.constants.INV_ALERT_CONFIGURATION, self.constants.KEY_FILE, self.constants.LOG_FILE, self.constants.USER, self.constants.GROUP)
+
+
+	def display_configuration(self) -> None:
+		"""
+		Method that displays the Inv-Alert's configuration.
+		"""
+		inv_alert_data = libPyConfiguration(self.constants.BACKTITLE)
+		inv_alert_data.display_configuration(self.constants.INV_ALERT_CONFIGURATION, self.constants.LOG_FILE, self.constants.USER, self.constants.GROUP)
+
+
+	def create_inventory(self) -> None:
+		"""
+		Method that creates the Inventory's configuration.
+		"""
+		inv_alert_data = Inventories()
+		inv_alert_data.define_name()
+		inv_alert_data.define_execution_time()
+		inv_alert_data.define_index_pattern()
+		inv_alert_data.define_timestamp_field()
+		inv_alert_data.define_hostname_field()
+		inv_alert_data.define_ip_address_field()
+		inv_alert_data.define_telegram_bot_token()
+		inv_alert_data.define_telegram_chat_id()
+		inv_alert_data.create_file(inv_alert_data.convert_object_to_dict())
+
+
+	def display_about(self) -> None:
+		"""
+		Method that displays the about of the application.
+		"""
+		try:
+			text = "\nAuthor: Erick Roberto Rodríguez Rodríguez\nEmail: erickrr.tbd93@gmail.com, erodriguez@tekium.mx\nGithub: https://github.com/erickrr-bd/Inv-Alert\nInv-Alert v3.3 - November 2025" + "\n\nPython script that generates a daily servers' inventory\nwith Elastic beats installed."
+			self.dialog.create_scrollbox(text, 13, 60, "About")
+		except KeyboardInterrupt:
+			pass
+		finally:
+			raise KeyboardInterrupt("Error")

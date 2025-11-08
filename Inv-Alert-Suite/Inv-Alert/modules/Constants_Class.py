@@ -1,33 +1,36 @@
 """
-Class that manages all the constant variables of the application.
+Class that manages the application's constants.
 """
+from dataclasses import dataclass
+
+@dataclass(frozen = True)
 class Constants:
 	"""
-	Absolute path of the Inv-Alert configuration file.
+	Inv-Alert's configuration file.
 	"""
-	PATH_FILE_CONFIGURATION = "/etc/Inv-Alert-Suite/Inv-Alert/configuration/inv_alert_conf.yaml"
+	INV_ALERT_CONFIGURATION: str = "/etc/Inv-Alert-Suite/Inv-Alert/configuration/inv_alert.yaml"
 
 	"""
-	Absolute path of the file where the key for the encryption/decryption process is stored.
+	Inventories' path.
 	"""
-	PATH_KEY_FILE = "/etc/Inv-Alert-Suite/Inv-Alert/configuration/key"
+	INVENTORIES_FOLDER: str = "/etc/Inv-Alert-Suite/Inv-Alert/inventories"
 
 	"""
-	Absolute path of the VS-Monitor configuration file.
+	Encryption key's path.
 	"""
-	PATH_INVENTORIES_FOLDER = "/etc/Inv-Alert-Suite/Inv-Alert/inventories"
+	KEY_FILE: str = "/etc/Inv-Alert-Suite/Inv-Alert/configuration/key"
 
 	"""
-	Absolute path of the application logs.
+	Inv-Alert's log file.
 	"""
-	NAME_FILE_LOG = "/var/log/Inv-Alert/inv-alert-log-"
+	LOG_FILE: str = "/var/log/Inv-Alert/inv-alert-log"
 
 	"""
-	Name of the user created for the operation of the application.
+	Owner user.
 	"""
-	USER = "inv_alert"
+	USER: str = "inv_alert"
 
 	"""
-	Name of the group created for the operation of the application.
+	Owner group.
 	"""
-	GROUP = "inv_alert"
+	GROUP: str = "inv_alert"

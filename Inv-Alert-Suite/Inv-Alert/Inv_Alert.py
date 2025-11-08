@@ -1,14 +1,10 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python3.12
 
+"""
+Main function.
+"""
 from modules.Inv_Alert_Class import InvAlert
 
-"""
-Attribute that stores an object of the InvAlert class.
-"""
-inv_alert = InvAlert()
-
-"""
-Main function of the application.
-"""
 if __name__ == "__main__":
-	inv_alert.startInvAlert()
+	inv_alert = InvAlert()
+	inv_alert.start_inv_alert()

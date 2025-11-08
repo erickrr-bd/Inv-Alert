@@ -1,11 +1,11 @@
 [Unit]
-Description=Inv-Alert v3.2
+Description=Inv-Alert v3.3
 After=networking.target
 StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-ExecStart=/etc/Inv-Alert-Suite/Inv-Alert/Inv_Alert.py
+ExecStart=/opt/Inv-Alert-Suite/Inv-Alert/Inv_Alert.py
 User=inv_alert
 Restart=on-failure
 RestartSec=1

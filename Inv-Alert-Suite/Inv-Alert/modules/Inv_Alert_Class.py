@@ -1,214 +1,221 @@
+"""
+Class that manages everything related to Inv-Alert.
+"""
 from os import path
-from sys import exit
 from threading import Thread
-from libPyElk import libPyElk
 from libPyLog import libPyLog
+from libPyElk import libPyElk
 from time import sleep, strftime
 from libPyUtils import libPyUtils
 from datetime import datetime, date
 from .Constants_Class import Constants
 from libPyTelegram import libPyTelegram
+from dataclasses import dataclass, field
+from libPyConfiguration import libPyConfiguration
 
-"""
-Class that manages everything related to Inv-Alert.
-"""
+@dataclass
 class InvAlert:
-	"""
-	Attribute that stores an object of the libPyUtils class.
-	"""
-	__utils = None
 
-	"""
-	Attribute that stores an object of the libPyLog class.
-	"""
-	__logger = None
-
-	"""
-	Attribute that stores an object of the libPyTelegram class.
-	"""
-	__telegram = None
-
-	"""
-	Attribute that stores an object of the Constants class.
-	"""
-	__constants = None
-
-	"""
-	Attribute that stores an object of the libPyElk class.
-	"""
-	__elasticsearch = None
+	logger: libPyLog = field(default_factory = libPyLog)
+	utils: libPyUtils = field(default_factory = libPyUtils)
+	constants: Constants = field(default_factory = Constants)
+	elasticsearch: libPyElk = field(default_factory = libPyElk)
+	telegram: libPyTelegram = field(default_factory = libPyTelegram)
 
 
-	def __init__(self):
+	def start_inv_alert(self) -> None:
 		"""
-		Method that corresponds to the constructor of the class.
-		"""
-		self.__logger = libPyLog()
-		self.__utils = libPyUtils()
-		self.__constants = Constants()
-		self.__elasticsearch = libPyElk()
-		self.__telegram = libPyTelegram()
-
-
-	def startInvAlert(self):
-		"""
-		Method that starts the operation of Inv-Alert.
+		Method that starts Inv-Alert.
 		"""
 		try:
-			data_configuration = self.__utils.readYamlFile(self.__constants.PATH_FILE_CONFIGURATION)
-			if data_configuration["use_http_authentication"] == True:
-				conn_es = self.__elasticsearch.createConnectionToElasticSearch(data_configuration, path_key_file = self.__constants.PATH_KEY_FILE)
+			self.logger.create_log("Author: Erick Roberto Rodríguez Rodríguez", 2, "_start", use_stream_handler = True)
+			self.logger.create_log("Email: erickrr.tbd93@gmail.com, erodriguez@tekium.mx", 2, "_start", use_stream_handler = True)
+			self.logger.create_log("Github: https://github.com/erickrr-bd/Inv-Alert", 2, "_start", use_stream_handler = True)
+			self.logger.create_log("Inv-Alert v3.3 - November 2025", 2, "_start", use_stream_handler = True)
+			if path.exists(self.constants.INV_ALERT_CONFIGURATION):
+				self.logger.create_log(f"Configuration found: {self.constants.INV_ALERT_CONFIGURATION}", 2, "_readConfiguration", use_stream_handler = True)
+				configuration = libPyConfiguration()
+				data = self.utils.read_yaml_file(self.constants.INV_ALERT_CONFIGURATION)
+				configuration.convert_dict_to_object(data)
+				if configuration.use_authentication:
+					if configuration.authentication_method == "HTTP Authentication":
+						conn_es = self.elasticsearch.create_connection_http_auth(configuration, self.constants.KEY_FILE)
+					elif configuration.authentication_method == "API Key":
+						conn_es = self.elasticsearch.create_connection_api_key(configuration, self.constants.KEY_FILE)
+				else:
+					conn_es = self.elasticsearch.create_connection_without_auth(configuration)
+				self.logger.create_log(f"Connection established: {','.join(configuration.es_host)}", 2, "_clusterConnection", use_stream_handler = True)
+				self.logger.create_log(f"ElasticSearch Cluster Name: {conn_es.info()["cluster_name"]}", 2, "_clusterConnection", use_stream_handler = True)
+				self.logger.create_log(f"ElasticSearch Cluster UUID: {conn_es.info()["cluster_uuid"]}", 2, "_clusterConnection", use_stream_handler = True)
+				self.logger.create_log(f"ElasticSearch Version: {conn_es.info()["version"]["number"]}", 2, "_clusterConnection", use_stream_handler = True)
+				if configuration.use_authentication:
+					self.logger.create_log("Authentication enabled", 2, "_clusterConnection", use_stream_handler = True)
+					self.logger.create_log("Authentication Method: HTTP Authentication", 2, "_clusterConnection", use_stream_handler = True) if configuration.authentication_method == "HTTP Authentication" else self.logger.create_log("Authentication Method: API Key", 2, "_clusterConnection", use_stream_handler = True)
+				else:
+					self.logger.create_log("Authentication disabled. Not recommended for security reasons.", 3, "_clusterConnection", use_stream_handler = True)
+				if configuration.verificate_certificate_ssl:
+					self.logger.create_log("SSL Certificate verification enabled", 2, "_clusterConnection", use_stream_handler = True)
+					self.logger.create_log(f"SSL Certificate: {configuration.certificate_file}", 2, "_clusterConnection", use_stream_handler = True)
+				else:
+					self.logger.create_log("Certificate verification disabled. Not recommended for security reasons.", 3, "_clusterConnection", use_stream_handler = True)
+				inventories = self.utils.get_subdirectories(self.constants.INVENTORIES_FOLDER)
+				if inventories:
+					self.logger.create_log(f"{str(len(inventories))} inventories in: {self.constants.INVENTORIES_FOLDER}", 2 , "_readInventories", use_stream_handler = True)
+					for inventory in inventories:
+						inventory_data = self.utils.read_yaml_file(f"{self.constants.INVENTORIES_FOLDER}/{inventory}/{inventory}.yaml")
+						self.logger.create_log(f"Inventory: {inventory_data["name"]}", 2, "_loadInventory", use_stream_handler = True)
+						Thread(name = inventory[:-5], target = self.start_inventory, args = (conn_es, inventory_data)).start()
+				else:
+					self.logger.create_log(f"No inventories in: {self.constants.INVENTORIES_FOLDER}", 3, "_readInventories", use_stream_handler = True)
 			else:
-				conn_es = self.__elasticsearch.createConnectionToElasticSearch(data_configuration)
-			if not conn_es == None:
-				self.__logger.generateApplicationLog("Inv-Alert v3.2", 1, "__start", use_stream_handler = True)
-				self.__logger.generateApplicationLog("@2022 Tekium. All rights reserved.", 1, "__start", use_stream_handler = True)
-				self.__logger.generateApplicationLog("Author: Erick Rodriguez", 1, "__start", use_stream_handler = True)
-				self.__logger.generateApplicationLog("Email: erodriguez@tekium.mx, erickrr.tbd93@gmail.com", 1, "__start", use_stream_handler = True)
-				self.__logger.generateApplicationLog("License: GPLv3", 1, "__start", use_stream_handler = True)
-				self.__logger.generateApplicationLog("Inv-Alert started", 1, "__start", use_stream_handler = True)
-				self.__logger.generateApplicationLog("Established connection with: " + data_configuration["es_host"] + ":" + str(data_configuration["es_port"]), 1, "__connection" , use_stream_handler = True)
-				self.__logger.generateApplicationLog("Elasticsearch Cluster Name: " + conn_es.info()["cluster_name"], 1, "__connection", use_stream_handler = True)
-				self.__logger.generateApplicationLog("Elasticsearch Version: " + conn_es.info()["version"]["number"], 1, "__connection", use_stream_handler = True)
-				list_all_inventories = self.__utils.getListToAllSubDirectories(self.__constants.PATH_INVENTORIES_FOLDER)
-				if list_all_inventories:
-					self.__logger.generateApplicationLog(str(len(list_all_inventories)) + " inventories in: " + self.__constants.PATH_INVENTORIES_FOLDER, 1, "__readInventories", use_stream_handler = True)
-					for inventory in list_all_inventories:
-						self.__logger.generateApplicationLog(inventory + " load", 1, "__inventory", use_stream_handler = True)
-						data_inventory = self.__utils.readYamlFile(self.__constants.PATH_INVENTORIES_FOLDER + "/" + inventory + "/" + inventory + ".yaml")
-						Thread(name = inventory, target = self.__getInventory, args = (data_inventory, conn_es, )).start()
-		except KeyError as exception:
-			self.__logger.generateApplicationLog("Key Error: " + str(exception), 3, "__start", use_stream_handler = True, use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-			exit(1)
-		except (FileNotFoundError, OSError, IOError) as exception:
-			self.__logger.generateApplicationLog("Error to open or read a file or directory. For more information, see the logs.", 3, "__start", use_stream_handler = True)
-			self.__logger.generateApplicationLog(exception, 3, "__start", use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-			exit(1)
-		except (self.__elasticsearch.exceptions.AuthenticationException, self.__elasticsearch.exceptions.ConnectionError, self.__elasticsearch.exceptions.AuthorizationException, self.__elasticsearch.exceptions.RequestError, self.__elasticsearch.exceptions.ConnectionTimeout) as exception:
-			self.__logger.generateApplicationLog("Error connecting to ElasticSearch. For more information, see the logs.", 3, "__connection", use_stream_handler = True)
-			self.__logger.generateApplicationLog(exception, 3, "__connection", use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-			exit(1)
+				self.logger.create_log("Configuration not found.", 4, "_readConfiguration", use_stream_handler = True)
+		except Exception as exception:
+			self.logger.create_log("Error starting Inv-Alert. For more information, see the logs.", 4, "_start", use_stream_handler = True)
+			self.logger.create_log(exception, 4, "_start", use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
 
 
-	def __getInventory(self, data_inventory, conn_es):
+	def start_inventory(self, conn_es, inventory_data: dict) -> None:
 		"""
-		Method that is obtaining the inventory of the day.
+		Method that executes an inventory.
 
-		:arg data_inventory (dict): Object that contains the inventory data.
-		:arg conn_es (object): Object that contains a connection to ElasticSearch.
+		Parameters:
+			conn_es (ElasticSearch): A straightforward mapping from Python to ES REST endpoints.
+			inventory_data (dict): Object that contains the inventory's configuration data.
 		"""
 		try:
-			search_in_elastic = self.__elasticsearch.createSearchObject(conn_es, data_inventory["index_pattern_name"])
-			inventory_time_execution = data_inventory["inventory_time_execution"].split(':')
-			passphrase = self.__utils.getPassphraseKeyFile(self.__constants.PATH_KEY_FILE)
-			telegram_bot_token = self.__utils.decryptDataWithAES(data_inventory["telegram_bot_token"], passphrase).decode("utf-8")
-			telegram_chat_id = self.__utils.decryptDataWithAES(data_inventory["telegram_chat_id"], passphrase).decode("utf-8")
+			time_execution = inventory_data["time_execution"].split(':')
+			passphrase = self.utils.get_passphrase(self.constants.KEY_FILE)
+			telegram_bot_token = self.utils.decrypt_data(inventory_data["telegram_bot_token"], passphrase).decode("utf-8")
+			telegram_chat_id = self.utils.decrypt_data(inventory_data["telegram_chat_id"], passphrase).decode("utf-8")
 			while True:
 				now = datetime.now()
-				if (now.hour == int(inventory_time_execution[0]) and now.minute == int(inventory_time_execution[1])):
-					list_all_hosts_found = []
-					result_search = self.__elasticsearch.executeSearchWithAggregation(search_in_elastic, data_inventory["field_name_in_index"], "now-1d", "now")
-					for bucket in result_search.aggregations.events.buckets:
-						list_all_hosts_found.append(bucket.key)
-					path_inventory_yaml = self.__constants.PATH_INVENTORIES_FOLDER + '/' + data_inventory["inventory_name"] + '/' + "database_inventory.yaml"
-					path_inventory_txt = self.__constants.PATH_INVENTORIES_FOLDER + '/' + data_inventory["inventory_name"] + '/' + data_inventory["inventory_name"] + '-' + str(date.today()) + ".txt"
-					if not path.exists(path_inventory_yaml):
-						self.__createDatabaseYamlFile(list_all_hosts_found, path_inventory_yaml)
-						message_to_send = self.__generateMessageTelegram(data_inventory["inventory_name"], [], [], list_all_hosts_found)
-						self.__logger.generateApplicationLog("Total hosts: " + str(len(list_all_hosts_found)), 1, "__" + data_inventory["inventory_name"], use_stream_handler = True, use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
+				if (now.hour == int(time_execution[0]) and now.minute == int(time_execution[1])):
+					hosts_list = []
+					inventory_yaml = f"{self.constants.INVENTORIES_FOLDER}/{inventory_data["name"]}/inventory.yaml"
+					inventory_txt = f"{self.constants.INVENTORIES_FOLDER}/{inventory_data["name"]}/{inventory_data["name"]}-{date.today()}.txt"
+					result = self.elasticsearch.search_multiple_aggregation(conn_es, inventory_data["index_pattern"], inventory_data["timestamp_field"], inventory_data["hostname_field"], inventory_data["ip_address_field"], "now-1d", "now")
+					for bucket in result.aggregations.events.buckets:
+						hits = bucket.events_two.hits.hits[0]._source.to_dict()
+						ip_list = self.get_nested_value(hits, inventory_data["ip_address_field"])
+						hosts_list.append((bucket.key, ip_list))
+					if not path.exists(inventory_yaml):
+						self.create_inventory_yaml(hosts_list, inventory_yaml)
+						telegram_message = self.generate_telegram_message([], [], hosts_list, inventory_data["name"])
+						self.logger.create_log(f"Total hosts: {len(hosts_list)}", 2, f"_{inventory_data["name"]}", use_stream_handler = True, use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
 					else:
-						database_inventory = self.__utils.readYamlFile(path_inventory_yaml)
-						list_all_hosts_actual = database_inventory["list_all_hosts_found"]
-						list_all_hosts_added = list(set(list_all_hosts_found) - set(list_all_hosts_actual))
-						list_all_hosts_removed = list(set(list_all_hosts_actual) - set(list_all_hosts_found))
-						self.__logger.generateApplicationLog("Total hosts added: " + str(len(list_all_hosts_added)), 1, "__" + data_inventory["inventory_name"], use_stream_handler = True, use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-						self.__logger.generateApplicationLog("Total hosts removed: " + str(len(list_all_hosts_removed)), 1, "__" + data_inventory["inventory_name"], use_stream_handler = True, use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-						if list_all_hosts_added:
-							list_all_hosts_actual.extend(list_all_hosts_added)
-						if list_all_hosts_removed:
-							for host in list_all_hosts_removed:
-								list_all_hosts_actual.remove(host)
-						self.__logger.generateApplicationLog("Total hosts: " + str(len(list_all_hosts_actual)), 1, "__" + data_inventory["inventory_name"], use_stream_handler = True, use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-						self.__createDatabaseYamlFile(list_all_hosts_actual, path_inventory_yaml)
-						message_to_send = self.__generateMessageTelegram(data_inventory["inventory_name"], list_all_hosts_added, list_all_hosts_removed, list_all_hosts_actual)
-					self.__utils.copyFile(path_inventory_yaml, path_inventory_txt)
-					self.__utils.changeOwnerToPath(path_inventory_txt, self.__constants.USER, self.__constants.GROUP)
-					response_status_code = self.__telegram.sendFileMessageTelegram(telegram_bot_token, telegram_chat_id, message_to_send, path_inventory_txt)
-					self.__createLogByTelegramCode(response_status_code, data_inventory["inventory_name"])
+						inventory_yaml_data = self.utils.read_yaml_file(inventory_yaml)
+						current_hosts = inventory_yaml_data["hosts_list"]
+						hosts_list = [(host, tuple(ips)) for host, ips in hosts_list]
+						current_hosts = [(host, tuple(ips)) for host, ips in current_hosts]
+						added_hosts = list(set(hosts_list) - set(current_hosts))
+						removed_hosts = list(set(current_hosts) - set(hosts_list))
+						self.logger.create_log(f"Added Hosts: {len(added_hosts)}", 2, f"_{inventory_data["name"]}", use_stream_handler = True, use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
+						self.logger.create_log(f"Removed Hosts: {len(removed_hosts)}", 2, f"_{inventory_data["name"]}", use_stream_handler = True, use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
+						if added_hosts:
+							current_hosts.extend(added_hosts)
+						if removed_hosts:
+							[current_hosts.remove(host) for host in removed_hosts]
+						self.logger.create_log(f"Total hosts: {len(current_hosts)}", 2, f"_{inventory_data["name"]}", use_stream_handler = True, use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
+						self.create_inventory_yaml(current_hosts, inventory_yaml)
+						telegram_message = self.generate_telegram_message(added_hosts, removed_hosts, current_hosts, inventory_data["name"])
+					self.utils.convert_yaml_to_txt(inventory_yaml, inventory_txt)
+					response_http_code = self.telegram.send_telegram_message_and_file(telegram_bot_token, telegram_chat_id, telegram_message, inventory_txt)
+					self.create_log_by_telegram_code(response_http_code, inventory_data["name"])
 				sleep(60)
-		except KeyError as exception:
-			self.__logger.generateApplicationLog("Key Error: " + str(exception), 3, "__" + data_inventory["inventory_name"], use_stream_handler = True, use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-			exit(1)
-		except ValueError as exception:
-			self.__logger.generateApplicationLog("Error to encrypt or decrypt the data. For more information, see the logs.", 3, "__" + data_inventory["inventory_name"], use_stream_handler = True)
-			self.__logger.generateApplicationLog(exception, 3, "__" + data_inventory["inventory_name"], use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-			exit(1)
-		except (OSError, IOError, FileNotFoundError) as exception:
-			self.__logger.generateApplicationLog("Error to create, open or read a file or directory. For more information, see the logs.", 3, "__" + data_inventory["inventory_name"], use_stream_handler = True)
-			self.__logger.generateApplicationLog(exception, 3, "__" + data_inventory["inventory_name"], use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-			exit(1)
-		except (self.__elasticsearch.exceptions.AuthenticationException, self.__elasticsearch.exceptions.ConnectionError, self.__elasticsearch.exceptions.AuthorizationException, self.__elasticsearch.exceptions.RequestError, self.__elasticsearch.exceptions.ConnectionTimeout) as exception:
-			self.__logger.generateApplicationLog("Error performing an action in ElasticSearch. For more information, see the logs.", 3, "__" + data_inventory["inventory_name"], use_stream_handler = True)
-			self.__logger.generateApplicationLog(exception, 3, "__" + data_inventory["inventory_name"], use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-			exit(1)
+		except Exception as exception:
+			self.logger.create_log(f"Error running the inventory: {inventory_data["name"]}. For more information, see the logs.", 4, f"_{inventory_data["name"]}", use_stream_handler = True)
+			self.logger.create_log(exception, 4, f"_{inventory_data["name"]}", use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
 
 
-	def __createDatabaseYamlFile(self, list_all_hosts_found, path_inventory_yaml):
+	def get_nested_value(self, hits: dict, field_name: str, default = None) -> str:
 		"""
-		Method that creates the YAML file where the list of hosts obtained will be stored.
+		Method that obtains the values of an aggregation when the field's name has the character '.'.
 
-		:arg list_all_hosts_found (list): List containing the name of all obtained hosts.
-		:arg path_inventory_yaml (string): Absolute path of the YAML file corresponding to the list of hosts.
+		Parameters:
+			hits (list): Search result by aggregation.
+			field_name (str): Field's name.
+			default (str): Default value.
+
+		Returns:
+			value (list): Value's list. 
 		"""
-		database_inventory_json = {"last_scan_time" : strftime("%c"),
-								   "list_all_hosts_found" : list_all_hosts_found,
-								   "total_hosts_found" : len(list_all_hosts_found)}
+		keys = field_name.split('.')
+		value = hits
+		for key in keys:
+			if isinstance(value, dict) and key in value:
+				value = value[key]
+			else:
+				return default
+		return value
 
-		self.__utils.createYamlFile(database_inventory_json, path_inventory_yaml)
-		self.__utils.changeOwnerToPath(path_inventory_yaml, self.__constants.USER, self.__constants.GROUP)
+
+	def create_inventory_yaml(self, hosts_list: dict, inventory_yaml: str) -> None:
+		"""
+		Method that saves the host inventory in a YAML file.
+
+		Parameters:
+			hosts_list (list): List with the total number of hosts.
+			inventory_yaml (str): Inventory's yaml file.
+		"""
+		inventory_yaml_json = {
+			"last_scan_time" : strftime("%c"),
+			"hosts_list" : hosts_list,
+			"total_hosts" : len(hosts_list)
+		}
+		self.utils.create_yaml_file(inventory_yaml_json, inventory_yaml)
+		self.utils.change_owner(inventory_yaml, self.constants.USER, self.constants.GROUP, "640")
 
 
-	def __generateMessageTelegram(self, inventory_name, list_all_hosts_added, list_all_hosts_removed, list_all_hosts_actual):
+	def generate_telegram_message(self, added_hosts: list, removed_hosts: list, total_hosts: list, inventory_name: str) -> str:
 		"""
 		Method that generates the message to be sent via Telegram.
 
-		Return the string that will be send to Telegram.
+		Parameters:
+			added_hosts (list): List with the total hosts added.
+			removed_hosts (list): List with the total number of hosts removed.
+			total_hosts (list): List with the total number of hosts.
+			inventory_name (str): Inventory's name.
 
-		:arg inventory_name (string): Inventory name.
-		:arg list_all_hosts_added (list): List with all the names of the added hosts.
-		:arg list_all_hosts_removed (list): List with all the names of the removed hosts.
-		:arg list_all_hosts_actual (list): List with all the names of the final or current hosts.
+		Returns:
+			telegram_message (str): Message to be sent via Telegram.
 		"""
-		message_telegram = "" + u"\u26A0\uFE0F" + " " + inventory_name +  " " + u"\u26A0\uFE0F" + "\n\n" + u"\u23F0" + " Alert sent: " + strftime("%c") + "\n\n"
-		message_telegram += u"\u270F\uFE0F" + " Total hosts added: " + str(len(list_all_hosts_added)) + "\n"
-		if list_all_hosts_added:
-			for host in list_all_hosts_added:
-				message_telegram += "\n" + u"\u2611\uFE0F" + " " + host
-		message_telegram += "\n\n" + u"\u270F\uFE0F" + " Total hosts removed: " + str(len(list_all_hosts_removed)) + "\n"
-		if list_all_hosts_removed:
-			for host in list_all_hosts_removed:
-				message_telegram += "\n" + u"\u2611\uFE0F" + " " + host
-		message_telegram += "\n\n" + "TOTAL HOSTS: " + str(len(list_all_hosts_actual))
-		if len(message_telegram) > 1024:
-			message_telegram = "" + u"\u26A0\uFE0F" + " " + inventory_name +  " " + u"\u26A0\uFE0F" + "\n\n" + u"\u23F0" + " Alert sent: " + strftime("%c") + "\n\n"
-			message_telegram += u"\u270F\uFE0F" + " Total hosts added: " + str(len(list_all_hosts_added)) + "\n"
-			message_telegram += "\n\n" + u"\u270F\uFE0F" + " Total hosts removed: " + str(len(list_all_hosts_removed))
-			message_telegram += "\n\n" + "TOTAL HOSTS: " + str(len(list_all_hosts_actual))
-		return message_telegram.encode("utf-8")
+		emoji_alert = "\u26A0\uFE0F"
+		emoji_clock = "\u23F0"	
+		emoji_pencil = "\u270F\uFE0F"
+		emoji_check = "\u2611\uFE0F"
+		
+		telegram_message = f"{emoji_alert} {inventory_name} {emoji_alert}\n\n{emoji_clock} Alert sent: {strftime("%c")}\n\n"
+		telegram_message += f"{emoji_pencil} Added Hosts: {len(added_hosts)}\n"
+		if added_hosts:
+			for host in added_hosts:
+				telegram_message += f"\n{emoji_check} {host[0]}"
+		telegram_message += f"\n\n{emoji_pencil} Removed Hosts: {len(removed_hosts)}\n"
+		if removed_hosts:
+			for host in removed_hosts:
+				telegram_message += f"\n{emoji_check} {host[0]}"
+		telegram_message += f"\n\nTOTAL HOSTS: {len(total_hosts)}"
+		if len(telegram_message) > 1024:
+			telegram_message = f"{emoji_alert} {inventory_name} {emoji_alert}\n\n{emoji_clock} Alert sent: {strftime("%c")}\n\n"
+			telegram_message += f"{emoji_pencil} Added Hosts: {len(added_hosts)}\n"
+			telegram_message += f"\n\n{emoji_pencil} Removed Hosts: {len(removed_hosts)}\n"
+			telegram_message += f"\n\nTOTAL HOSTS: {len(total_hosts)}"
+		return telegram_message.encode("utf-8")
 
 
-	def __createLogByTelegramCode(self, response_status_code, inventory_name):
+	def create_log_by_telegram_code(self, response_http_code: int, name: str) -> None:
 		"""
-		Method that creates a log based on the HTTP code received as a response.
+		Method that generates an application log based on the HTTP response code of the Telegram API.
 
-		:arg response_status_code (integer): HTTP code received in the response when sending the alert to Telegram.
-		:arg inventory_name (string): Name of the inventory from which the alert was sent.
+		Parameters:
+			response_http_code (int): HTTP code returned by the Telegram API.
+			name (str): Inventory's name.
 		"""
-		if response_status_code == 200:
-			self.__logger.generateApplicationLog("Telegram message sent.", 1, "__" + inventory_name, use_stream_handler = True, use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-		elif response_status_code == 400:
-			self.__logger.generateApplicationLog("Telegram message not sent. Status: Bad request.", 3, "__" + inventory_name, use_stream_handler = True, use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-		elif response_status_code == 401:
-			self.__logger.generateApplicationLog("Telegram message not sent. Status: Unauthorized.", 3, "__" + inventory_name, use_stream_handler = True, use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
-		elif response_status_code == 404:
-			self.__logger.generateApplicationLog("Telegram message not sent. Status: Not found.", 3, "__" + inventory_name, use_stream_handler = True, use_file_handler = True, name_file_log = self.__constants.NAME_FILE_LOG, user = self.__constants.USER, group = self.__constants.GROUP)
+		match response_http_code:
+			case 200:
+				self.logger.create_log("Telegram message sent", 2, f"_{name}", use_stream_handler = True, use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
+			case 400:
+				self.logger.create_log("Telegram message not sent. Bad request.", 4, f"_{name}", use_stream_handler = True, use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
+			case 401:
+				self.logger.create_log("Telegram message not sent. Unauthorized.", 4, f"_{name}", use_stream_handler = True, use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
+			case 404:
+				self.logger.create_log("Telegram message not sent. Not found.", 4, f"_{name}", use_stream_handler = True, use_file_handler = True, file_name = self.constants.LOG_FILE, user = self.constants.USER, group = self.constants.GROUP)
