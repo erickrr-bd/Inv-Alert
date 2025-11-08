@@ -1,12 +1,8 @@
 # Inv-Alert v3.3
 
-Application that obtains a daily inventory of hosts that report to a specific index in ElasticSearch.
+Python tool for automating the daily inventory of assets registered in a specific index pattern. 
 
-Inv-Alert was born from the need to have a tool that would obtain a daily inventory of the equipment that ingests events to ElasticSearch. In order to have an inventory of hosts that allows better control.
-
-For example, having an inventory of Windows (Winlogbeat) and/or Linux (Auditbeat) servers.
-
-Inv-Alert also sends an alert via Telegram with the changes found in the new inventory obtained compared to the previous day. In addition, it sends a text file with the names of all the hosts found in the same message.
+Its main objective is to extract, validate and report changes in the infrastructure (registrations, cancellations and current status) through a previously configured Telegram channel.
 
 # Applications
 ## Inv-Alert
