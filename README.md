@@ -1,10 +1,4 @@
-# Inv-Alert v3.1
-
-Author: Erick Rodríguez
-
-Email: erickrr.tbd93@gmail.com, erodriguez@tekium.mx
-
-License: GPLv3
+# Inv-Alert v3.3
 
 Application that obtains a daily inventory of hosts that report to a specific index in ElasticSearch.
 
@@ -53,14 +47,3 @@ To install or update Inv-Alert, you must run the installer_inv_alert.sh executab
 - It changes the owner of the files and directories necessary for the operation of Inv-Alert, assigning them to the user created for this purpose.
 - Creation of passphrase for the encryption and decryption of sensitive information, which is generated randomly, so it is unique for each Inv-Alert installation.
 - Creation of Inv-Alert service.
-
-# Commercial Support
-![Tekium](https://github.com/unmanarc/uAuditAnalyzer2/blob/master/art/tekium_slogo.jpeg)
-
-Tekium is a cybersecurity company specialized in red team and blue team activities based in Mexico, it has clients in the financial, telecom and retail sectors.
-
-Tekium is an active sponsor of the project, and provides commercial support in the case you need it.
-
-For integration with other platforms such as the Elastic stack, SIEMs, managed security providers in-house solutions, or for any other requests for extending current functionality that you wish to see included in future versions, please contact us: info at tekium.mx
-
-For more information, go to: https://www.tekium.mx/
