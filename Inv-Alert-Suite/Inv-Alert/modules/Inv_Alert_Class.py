@@ -58,7 +58,7 @@ class InvAlert:
 					self.logger.create_log(f"SSL Certificate: {configuration.certificate_file}", 2, "_clusterConnection", use_stream_handler = True)
 				else:
 					self.logger.create_log("Certificate verification disabled. Not recommended for security reasons.", 3, "_clusterConnection", use_stream_handler = True)
-				inventories = self.utils.get_subdirectories(self.constants.INVENTORIES_FOLDER)
+				inventories = self.utils.get_enabled_subdirectories(self.constants.INVENTORIES_FOLDER)
 				if inventories:
 					self.logger.create_log(f"{str(len(inventories))} inventories in: {self.constants.INVENTORIES_FOLDER}", 2 , "_readInventories", use_stream_handler = True)
 					for inventory in inventories:
@@ -83,13 +83,13 @@ class InvAlert:
 			inventory_data (dict): Object that contains the inventory's configuration data.
 		"""
 		try:
-			time_execution = inventory_data["time_execution"].split(':')
+			execution_time = inventory_data["execution_time"].split(':')
 			passphrase = self.utils.get_passphrase(self.constants.KEY_FILE)
 			telegram_bot_token = self.utils.decrypt_data(inventory_data["telegram_bot_token"], passphrase).decode("utf-8")
 			telegram_chat_id = self.utils.decrypt_data(inventory_data["telegram_chat_id"], passphrase).decode("utf-8")
 			while True:
 				now = datetime.now()
-				if (now.hour == int(time_execution[0]) and now.minute == int(time_execution[1])):
+				if (now.hour == int(execution_time[0]) and now.minute == int(execution_time[1])):
 					hosts_list = []
 					inventory_yaml = f"{self.constants.INVENTORIES_FOLDER}/{inventory_data["name"]}/inventory.yaml"
 					inventory_txt = f"{self.constants.INVENTORIES_FOLDER}/{inventory_data["name"]}/{inventory_data["name"]}-{date.today()}.txt"
